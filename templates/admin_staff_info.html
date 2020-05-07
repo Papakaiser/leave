@@ -1,0 +1,762 @@
+{% extends 'layout_admin.html' %}
+{% block head %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="{{ url_for('static', filename='calender/packages/core/main.css') }}" rel='stylesheet'/>
+<link href="{{ url_for('static', filename='calender/packages/daygrid/main.css') }}" rel='stylesheet'/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://unpkg.com/js-datepicker"></script>
+
+
+<meta charset="UTF-8">
+
+<script>
+    $(document).ready( function () {
+        $('#myTable').DataTable({
+            scrollX:true, scrollY:true
+        });
+
+         var callback = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('input[name="first_name"]').val(data.first_name);
+                $('input[name="middle_name"]').val(data.middle_name);
+                $('input[name="last_name"]').val(data.last_name);
+                $('input[name="staff_number"]').val(data.staff_number);
+                $('input[name="phone"]').val(data.phone_number);
+                $('input[name="email"]').val(data.email);
+                $('input[name="position"]').val(data.position);
+                $('input[name="department"]').val(data.department);
+                $('input[name="station"]').val(data.station);
+                $('input[name="line_manager"]').val(data.line_manager_name);
+                $('input[name="isadmin"]').val(data.isadmin===0 ? 'User': 'Admin');
+                $('input[name="gender"]').val(data.gender==='m' ? 'Male': 'Female');
+                $('select[name="gender2"]').val(data.gender);
+                $('select[name="isadmin2"]').val(data.isadmin+'');
+                $('select[name="line_manager2"]').val(data.line_manager);
+                $('select[name="role2"]').val(data.role);
+                $('input[name="id"]').val(data.id);
+
+                console.log( $('input[name="id"]').val())
+            }
+        $('#myTable').on('click', '.viewuser',function(){
+            var username = $(this).data('username');
+            console.log('username is ', username)
+            $('#picture').attr('src',$(this).data('url'));
+            $.get('{{url_for('view', username='')}}'+username, {}, callback )
+        });
+
+        $('#myTable').on('click', '.edituser',function(){
+            var username = $(this).data('username');
+            console.log('username is ', username)
+            $.get('{{url_for('view', username='')}}'+username, {}, callback )
+        });
+    });
+
+
+
+
+
+
+</script>
+
+<title>leave</title>
+
+{% endblock %}
+
+<body>
+
+{% block contentdetails %}
+
+<div class="container-fluid conti1 ">
+
+    <div class="row" id="pdetails">
+
+        <div class="col-sm-2" id="pix">
+            <!--<div class="card" style="width:100%">-->
+            <!--<div class="dash">-->
+            <!--<a class="nav-link pit" href="#">DASHBOARD</a>-->
+            <!--</div>-->
+            <!--<div class="nav-item dropdown">-->
+            <!--<a class="nav-link dropdown-toggle pit1" href="#" id="navbardrop" data-toggle="dropdown">-->
+            <!--APPLY FOR LEAVE-->
+            <!--</a>-->
+            <!--<div class="dropdown-menu" style="width:100%; padding:0px">-->
+            <!--{2% for i in leave_types %}-->
+            <!--<div data-id="{3{i.leave_id}}" data-name="{3{i.name}}" class="dropdown-item side leave_type"-->
+            <!--data-toggle="modal" data-target="#exampleModal">{3{i.name}}-->
+            <!--</div>-->
+            <!--{2% endfor %}-->
+
+            <!--</div>-->
+
+
+            <!--</div>-->
+            <!--</div>-->
+
+        </div>
+        <div class="col-sm-10">
+            <div class="msg">{{ msg }}</div>
+            <h3 class="tip"></h3>
+            <div class="row wor">
+
+                <div class="card">
+                    <div class="card-header">
+
+                            STAFF LIST
+                            <div align="right" class="float-right">
+                                <i class="fa fa-user-plus action " data-toggle="modal"
+                                   data-target="#addstaff"></i>
+                            </div>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-md-12 ">
+                                <table class="table-striped tab table-bordered" id="myTable" width="100%">
+                                    <thead>
+                                    <tr>
+
+                                        <th>Name</th>
+                                        <th>Staff No</th>
+                                        <th>Department</th>
+                                        <th>Office</th>
+                                        <th>Email</th>
+                                        <th>Phone Number</th>
+                                        <th>Position</th>
+                                        <th>Line Manager</th>
+                                        <th>Gender</th>
+                                        <th>Actions</th>
+
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    {% for i in info %}
+                                    <tr>
+
+                                        <td>{{i.first_name }} {{i.middle_name }} {{i.last_name}}</td>
+                                        <td>{{i.staff_number}}</td>
+                                        <td>{{i.department}}</td>
+                                        <td>{{i.station}}</td>
+                                        <td>{{i.email}}</td>
+                                        <td>{{i.phone_number}}</td>
+                                        <td>{{i.position}}</td>
+                                        <td>{{i.line_manager_name}}</td>
+                                        <td>{{'Male' if i.gender== 'm' else 'Female'}}</td>
+
+                                        <td><i class="fa fa-binoculars action viewuser" style="color:green;"
+                                               data-toggle="modal" data-url="{{url_for('static', filename='image/'+ i.profile_pix)}}"
+                                               data-target="#view" data-username="{{i.staff_number}}" id="viewuser"></i>
+                                            <i class="fa fa-edit action edituser" data-username="{{i.staff_number}}"
+                                               style="color:green;" data-toggle="modal"
+                                               data-target="#update"></i>
+                                            <i class="fa fa-trash action" style="color:red;" data-toggle="modal"
+                                               data-target="#delete" data-username="{{i.staff_number}}"
+                                               id="viewuser2"></i>
+                                        </td>
+
+
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!--modal-->
+            <!--staff view modal-->
+            <div class="modal fade " id="view" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content ">
+                        <div class="modal-header">
+
+                            <div><span class="modal-title" id="leave_type_txt"></span>&nbsp;<span
+                                    class="modal-title" id="exampleModalLabel">Staff Data</span></div>
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form>
+                            <div class="modal-body">
+
+                                <div>
+                                    <div class="clearfix">
+                                        <div class="pull-left m-r-30">
+                                            <div class="thumbnail m-b-none">
+
+                                                <img src=""
+                                                     alt="Profile Page" width="200px" height="200px" id="picture">
+                                            </div>
+                                        </div>
+                                        <!--<div class="pull-left">-->
+                                        <!--<h3 class="bold font-color-1">Patrick Kaiser Boham</h3>-->
+                                        <!--<ul class="info-list">-->
+                                        <!--<li><span class="info-list-title">Email</span><span-->
+                                        <!--class="info-list-des">boham_2001@yahoo.com</span></li>-->
+
+                                        <!--<li><span class="info-list-title">User Name</span><span-->
+                                        <!--class="info-list-des">perpau</span></li>-->
+
+                                        <!--<li>-->
+                                        <!--<span class="info-list-title">SMS Balance</span><span-->
+                                        <!--class="info-list-des">-->
+                                        <!--0-->
+                                        <!--</span>-->
+                                        <!--</li>-->
+
+                                        <!--</ul>-->
+                                        <!--</div>-->
+                                    </div>
+                                    <div class="tab-content panel p-20">
+
+
+                                        <div role="tabpanel" class="tab-pane active" id="personal_details1">
+                                            <form role="form"
+                                                  action="https://portal.nsemfua.com/user/post-personal-info"
+                                                  method="post">
+                                                <input type="hidden" name="_token"
+                                                       value="">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+                                                            <label>First Name</label>
+                                                            <input type="text" class="form-control" required=""
+                                                                   name="first_name" value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Last Name</label>
+                                                            <input type="text" class="form-control" name="last_name"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Middle Name</label>
+                                                            <input type="text" class="form-control" name="middle_name"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Staff Number</label>
+                                                            <input type="text" class="form-control" name="staff_number"
+                                                                   value="">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Email</label>
+                                                            <input type="email" class="form-control" required=""
+                                                                   name="email" value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Phone</label>
+                                                            <input type="text" class="form-control" required=""
+                                                                   name="phone" value="">
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group">
+                                                            <label>Role</label>
+                                                            <input type="text" class="form-control" name="position"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Department</label>
+                                                            <input type="text" class="form-control" name="department"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Office</label>
+                                                            <input type="text" class="form-control" name="station"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Gender</label>
+                                                            <input type="text" class="form-control" name="gender"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Account Type</label>
+                                                            <input type="text" class="form-control" name="isadmin"
+                                                                   value="">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Line Manager</label>
+                                                            <input type="text" class="form-control" name="line_manager"
+                                                                   value="">
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <div class="col-md-12">
+                                                        <input type="hidden" value="26" name="cmd">
+                                                        <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                                    </div>
+                                                </div>
+
+
+                                            </form>
+
+                                        </div>
+
+
+                                        <div role="tabpanel" class="tab-pane" id="change-picture11">
+                                            <form role="form" enctype="multipart/form-data">
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+
+                                                        <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                            <input type="text" class="form-control" readonly="">
+                                                        </div>
+
+                                                        <input type="hidden" name="_token"
+                                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                        <input type="submit" value="Update" class="btn btn-primary">
+
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="modal-footer">
+                                        <!--<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>-->
+                                        <!--<button type="Submit" class="btn btn-success">APPLY</button>-->
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!--update modal-->
+
+            <div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                     <form role="form" enctype='multipart/form-data' action="{{url_for('updateuser')}}" method="post">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateLabel">Update Staff Data</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="tab-content panel p-20">
+
+
+                                <div role="tabpanel" class="tab-pane active" id="personal_details">
+
+                                        <input type="hidden" name="id"
+                                               value="">
+                                        <div class="row">
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>First Name</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="first_name" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Last Name</label>
+                                                    <input type="text" class="form-control" name="last_name"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Middle Name</label>
+                                                    <input type="text" class="form-control" name="middle_name"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Staff Number</label>
+                                                    <input type="text" class="form-control" name="staff_number"
+                                                           value="">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email</label>
+                                                    <input type="email" class="form-control" required=""
+                                                           name="email" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Phone</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="phone" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Picture</label>
+                                                    <input id="file-input" type="file" name="file-input" class="form-control">
+                                                </div>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Job Title</label>
+                                                    <input type="text" class="form-control" name="position"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Department</label>
+                                                    <input type="text" class="form-control" name="department"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Office</label>
+                                                    <input type="text" class="form-control" name="station"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Gender</label>
+                                                    <select name="gender2" class="form-control">
+                                                        <option value="m">Male</option>
+                                                        <option value="f">Female</option>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Account Type</label>
+                                                    <select name="isadmin2" class="form-control">
+                                                        <option value="0">User</option>
+                                                        <option value="1">Admin</option>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Role</label>
+                                                    <select name="role2" class="form-control">
+                                                        {% for i in rl %}
+                                                        <option value="{{i.id}}">{{i.role_name }}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label>Line Manager</label>
+                                                    <select name="line_manager2" class="form-control">
+                                                        {% for i in lm %}
+                                                        <option value="{{i.id}}">{{i.first_name }} {{i.middle_name }} {{i.last_name}}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <input type="hidden" value="26" name="cmd">
+                                                <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                            </div>
+                                        </div>
+
+
+
+
+                                </div>
+
+
+                                <div role="tabpanel" class="tab-pane" id="change-picture1">
+                                    <form role="form" enctype="multipart/form-data">
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+
+                                                <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                    <input type="text" class="form-control" readonly="">
+                                                </div>
+
+                                                <input type="hidden" name="_token"
+                                                       value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                <input type="submit" value="Update" class="btn btn-primary">
+
+                                            </div>
+
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                        </form>
+                </div>
+            </div>
+
+            <!--staff delete modal-->
+            <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateLabel2">Delete Staff Data</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+             <!--Add modal-->
+
+            <div class="modal fade" id="addstaff" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                     <form role="form" enctype='multipart/form-data' action="{{url_for('newuser')}}" method="post">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateLabel1">New Staff</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="tab-content panel p-20">
+
+
+                                <div role="tabpanel" class="tab-pane active" id="personal_details2">
+
+                                        <input type="hidden" name="id"
+                                               value="">
+                                        <div class="row">
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>First Name</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="first_name" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Last Name</label>
+                                                    <input type="text" class="form-control" name="last_name"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Middle Name</label>
+                                                    <input type="text" class="form-control" name="middle_name"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Staff Number</label>
+                                                    <input type="text" class="form-control" name="staff_number"
+                                                           value="">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email</label>
+                                                    <input type="email" class="form-control" required=""
+                                                           name="email" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Phone</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="phone" value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Picture</label>
+                                                    <input id="file-input1" type="file" name="file-input">
+                                                </div>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Job Title</label>
+                                                    <input type="text" class="form-control" name="position"
+                                                           value="">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Department</label>
+                                                    <select name="department">
+                                                        {% for i in dp %}
+                                                        <option value="{{i.name}}">{{i.name }}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Office</label>
+                                                    <select name="station">
+                                                        {% for i in st %}
+                                                        <option value="{{i.name}}">{{i.name }}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Gender</label>
+                                                    <select name="gender2">
+                                                        <option value="m">Male</option>
+                                                        <option value="f">Female</option>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Account Type</label>
+                                                    <select name="isadmin2">
+                                                        <option value="0">User</option>
+                                                        <option value="1">Admin</option>
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Role</label>
+                                                    <select name="role2">
+                                                        {% for i in rl %}
+                                                        <option value="{{i.id}}">{{i.role_name }}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label>Line Manager</label>
+                                                    <select name="line_manager2">
+                                                        {% for i in lm %}
+                                                        <option value="{{i.id}}">{{i.first_name }} {{i.middle_name }} {{i.last_name}}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <input type="hidden" value="26" name="cmd">
+                                                <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                            </div>
+                                        </div>
+
+
+
+
+                                </div>
+
+
+                                <div role="tabpanel" class="tab-pane" id="change-picture1">
+                                    <form role="form" enctype="multipart/form-data">
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+
+                                                <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                    <input type="text" class="form-control" readonly="">
+                                                </div>
+
+                                                <input type="hidden" name="_token"
+                                                       value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                <input type="submit" value="Update" class="btn btn-primary">
+
+                                            </div>
+
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                        </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    {% endblock %}
+
+</div>
+</body>
+

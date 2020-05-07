@@ -1,0 +1,175 @@
+{% extends 'layout_admin.html' %}
+{% block head %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{3{ url_for('static', filename='style.css') }}">
+<link href="{{ url_for('static', filename='calender/packages/core/main.css') }}" rel='stylesheet'/>
+<link href="{{ url_for('static', filename='calender/packages/daygrid/main.css') }}" rel='stylesheet'/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<script src="https://unpkg.com/js-datepicker"></script>
+<script>
+$(document).ready( function () {
+    $('#myTable').DataTable();
+    } );
+</script>
+
+<meta charset="UTF-8">
+
+
+<title>leave</title>
+
+{% endblock %}
+
+<body>
+
+{% block contentdetails %}
+
+<div class="container-fluid conti1 ">
+
+    <div class="row" id="pdetails">
+
+        <div class="col-sm-2" id="pix">
+
+        </div>
+        <div class="msg">{{ msg }}</div>
+        <div class="col-sm-10">
+
+<b><h3>
+            <i class="fa fa-dashboard">Dashboard</i></h3></b>
+
+            <div class="row wor">
+                <div class="col-xs-12 col-sm-6 col-lg-3">
+                    <div class="brand-card">
+                        <div class="brand-card-header bg-twitter">
+                            <div class="leave_type"> Users</div>
+
+                        </div>
+
+                        <div class="leave-card-body">
+
+                            <div class="leave-stat right-border">
+
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">Total</div>
+
+                            </div>
+
+                            <div class="leave-stat">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">{{staff_count.staffno}}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-lg-3">
+                    <div class="brand-card">
+                        <div class="brand-card-header bg-twitter">
+                            <div class="leave_type"> Roles</div>
+
+                        </div>
+                        <div class="leave-card-body">
+
+                            <div class="leave-stat right-border">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">total</div>
+                            </div>
+                            <div class="leave-stat">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">{{role.role}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-lg-3">
+                    <div class="brand-card">
+                        <div class="brand-card-header bg-twitter">
+                            <div class="leave_type"> Offices</div>
+
+                        </div>
+                        <div class="leave-card-body">
+
+                            <div class="leave-stat right-border">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">Total</div>
+                            </div>
+                            <div class="leave-stat">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">{{office.station}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-lg-3">
+                    <div class="brand-card">
+                        <div class="brand-card-header bg-twitter">
+                            <div class="leave_type"> Holidays</div>
+
+                        </div>
+                        <div class="leave-card-body">
+
+                            <div class="leave-stat right-border">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">Total</div>
+                            </div>
+                            <div class="leave-stat">
+                                <div class="text-value"></div>
+                                <div class="text-uppercase text-muted medium">{{holidays.holiday}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            Staffs
+                        </div>
+                        <div class="card-body">
+                            <table class="table-striped tab table-bordered" id="myTable" width="100%">
+                                <thead>
+                                <tr>
+
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Role</th>
+                                    <th>Office</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for i in staff %}
+                                <tr>
+
+                                    <td>{{i.first_name}} {{i.middle_name}} {{i.last_name}}</td>
+                                    <td>{{i.department}}</td>
+                                    <td>{{i.position}}</td>
+                                    <td>{{i.station}}</td>
+
+
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+{% endblock %}
+
+</body>
+

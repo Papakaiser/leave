@@ -1,0 +1,698 @@
+{% extends 'layout_admin.html' %}
+{% block head %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="{{ url_for('static', filename='calender/packages/core/main.css') }}" rel='stylesheet'/>
+<link href="{{ url_for('static', filename='calender/packages/daygrid/main.css') }}" rel='stylesheet'/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://unpkg.com/js-datepicker"></script>
+
+
+<meta charset="UTF-8">
+
+<script>
+    $(document).ready( function () {
+        $('#myTable').DataTable({
+            scrollX:true, scrollY:true
+        });
+        $('#myTable2').DataTable();
+
+         $('#myTable3').DataTable();
+
+        var callback = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('input[name="department_name"]').val(data.name);
+                $('input[name="id"]').val(data.id);
+            }
+            var callrole = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('input[name="role_name"]').val(data.role_name);
+                $('input[name="id"]').val(data.id);
+            }
+              var callstation = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('input[name="station_name"]').val(data.name);
+                $('input[name="id"]').val(data.id);
+            }
+        $('#myTable').on('click', '.delete_department',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
+        });
+
+        $('#myTable2').on('click', '.delete_role',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
+        });
+
+        $('#myTable3').on('click', '.delete_station',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
+        });
+
+        $('#myTable').on('click', '.editview_department',function(){
+            var id = $(this).data('id');
+            console.log('department id is ', id)
+            $.get('{{url_for('update_department', id='')}}'+id, {}, callback )
+        });
+
+        $('#myTable2').on('click', '.editview_role',function(){
+            var id = $(this).data('id');
+            console.log('role id is ', id)
+            $.get('{{url_for('update_role', id='')}}'+id, {}, callrole )
+        });
+
+        $('#myTable3').on('click', '.editview_station',function(){
+            var id = $(this).data('id');
+            console.log('station id is ', id)
+            $.get('{{url_for('get_station', id='')}}'+id, {}, callstation )
+        });
+    });
+
+
+
+
+
+
+</script>
+
+<title>Holidays</title>
+
+{% endblock %}
+
+<body>
+
+{% block contentdetails %}
+
+<div class="container-fluid conti1 ">
+
+    <div class="row" id="pdetails">
+
+        <div class="col-sm-1" id="pix">
+
+
+        </div>
+        <div class="col-sm-11"><h3 class="tip"></h3>
+            <div class="msg">{{ msg }}</div>
+            <div class="row wor">
+
+                <div class="col-sm-4">
+                    <div class="card">
+                        <div class="card-header ">
+
+                                Department
+                                <div align="right" class="float-right">
+                                    <li class="fa fa-user-plus action add" data-toggle="modal"
+                                        data-target="#adddepartment"></li>
+                                </div>
+
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-lg-12 ">
+                                    <table class="table-striped tab table-bordered" id="myTable" width="100%">
+                                        <thead>
+                                        <tr>
+
+                                            <th>Department</th>
+
+                                            <th>Actions</th>
+
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% for i in department %}
+                                        <tr>
+
+                                            <td>{{i.name }}</td>
+                                            <td>
+                                                <i class="fa fa-edit action editview_department"
+                                                   style="color:green;" data-toggle="modal" data-id="{{i.id}}"
+                                                   data-target="#department_update"></i>
+                                                <i class="fa fa-trash action delete_department" data-id="{{i.id}}"
+                                                   style="color:red;" data-toggle="modal"
+                                                   data-target="#delete_department"></i>
+                                            </td>
+
+
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="col-sm-4">
+                    <div class="card">
+                        <div class="card-header ">
+
+                               Role
+                                <div align="right" class="float-right">
+                                    <li class="fa fa-user-plus action add" data-toggle="modal"
+                                        data-target="#addrole"></li>
+                                </div>
+
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-lg-12 ">
+                                    <table class="table-striped tab table-bordered" id="myTable2" width="100%">
+                                        <thead>
+                                        <tr>
+
+                                            <th>Role</th>
+
+                                            <th>Actions</th>
+
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% for i in role %}
+                                        <tr>
+
+                                            <td>{{i.role_name }}</td>
+                                            <td>
+                                                <i class="fa fa-edit action editview_role" data-id="{{i.id}}"
+                                                   style="color:green;" data-toggle="modal"
+                                                   data-target="#role_update"></i>
+                                                <i class="fa fa-trash action delete_role" data-id="{{i.id}}"
+                                                   style="color:red;" data-toggle="modal"
+                                                   data-target="#delete_role"></i>
+                                            </td>
+
+
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="col-sm-4">
+                    <div class="card">
+                        <div class="card-header ">
+
+                                Office
+                                <div align="right" class="float-right">
+                                    <li class="fa fa-user-plus action add" data-toggle="modal"
+                                        data-target="#addoffice"></li>
+                                </div>
+
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-lg-12 ">
+                                    <table class="table-striped tab table-bordered" id="myTable3" width="100%">
+                                        <thead>
+                                        <tr>
+
+                                            <th>Office</th>
+
+                                            <th>Actions</th>
+
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% for i in station %}
+                                        <tr>
+
+                                            <td>{{i.name }}</td>
+                                            <td>
+                                                <i class="fa fa-edit action editview_station" data-id="{{i.id}}"
+                                                   style="color:green;" data-toggle="modal"
+                                                   data-target="#station_update"></i>
+                                                <i class="fa fa-trash action delete_station" data-id="{{i.id}}"
+                                                   style="color:red;" data-toggle="modal"
+                                                   data-target="#delete_station"></i>
+                                            </td>
+
+
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!--</form>-->
+    </div>
+</div>
+</div>
+
+<!--modal-->
+
+<!--update department modal-->
+
+<div class="modal fade" id="department_update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-sl" role="document">
+        <form  action="{{url_for('update_departments')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabel">Update Department</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tab-content panel p-20">
+
+
+                        <div role="tabpanel" class="tab-pane active" id="personal_details1">
+
+                            <input type="hidden" name="id"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="department_name" value="">
+                                    </div>
+
+
+                                     <!--<div class="col-md-12">-->
+                                    <!--<input type="hidden" value="26" name="cmd">-->
+                                    <!--&lt;!&ndash;<input type="submit" value="Update" class="btn btn-primary">&ndash;&gt;-->
+                                <!--</div>-->
+                            </div>
+
+
+                        </div>
+
+
+
+                    </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!--update role modal-->
+
+<div class="modal fade" id="role_update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-sl" role="document">
+        <form  action="{{url_for('update_roles')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabe3">Update Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tab-content panel p-20">
+
+
+                        <div role="tabpanel" class="tab-pane active" id="personal_details">
+
+                            <input type="hidden" name="id"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="role_name" value="">
+                                    </div>
+
+
+                                     <!--<div class="col-md-12">-->
+                                    <!--<input type="hidden" value="26" name="cmd">-->
+                                    <!--&lt;!&ndash;<input type="submit" value="Update" class="btn btn-primary">&ndash;&gt;-->
+                                <!--</div>-->
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!--update station modal-->
+
+<div class="modal fade" id="station_update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-sl" role="document">
+        <form  action="{{url_for('update_station')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabe33">Update Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tab-content panel p-20">
+
+
+                        <div role="tabpanel" class="tab-pane active" id="personal_details7">
+
+                            <input type="hidden" name="id"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="station_name" value="">
+                                    </div>
+
+
+                                     <!--<div class="col-md-12">-->
+                                    <!--<input type="hidden" value="26" name="cmd">-->
+                                    <!--&lt;!&ndash;<input type="submit" value="Update" class="btn btn-primary">&ndash;&gt;-->
+                                <!--</div>-->
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--department delete modal-->
+<div class="modal fade" id="delete_department" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form action="{{url_for('remove_department')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabel22">Remove Department</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--role delete modal-->
+<div class="modal fade" id="delete_role" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form action="{{url_for('remove_role')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabel23">Remove Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--station delete modal-->
+<div class="modal fade" id="delete_station" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form  action="{{url_for('remove_office')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateLabel2">Remove Office</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--add department-->
+<div class="modal fade" id="adddepartment" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form  action="{{url_for('new_department')}}" method="post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateLabel3">ADD Department</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content panel p-20">
+
+
+                    <div role="tabpanel" class="tab-pane active" id="personal_details3">
+                        <form role="form" action="" method="post">
+                            <input type="hidden" name="_token"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="name" value="">
+                                    </div>
+
+
+
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <input type="hidden" value="26" name="cmd">
+                                    <!--<input type="submit" value="ADD" class="btn btn-primary">-->
+                                </div>
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">ADD</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+
+<!--add role-->
+<div class="modal fade" id="addrole" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form  action="{{url_for('new_role')}}" method="post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateLabel33">ADD Department</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content panel p-20">
+
+
+                    <div role="tabpanel" class="tab-pane active" id="personal_details33">
+                        <form role="form" action="" method="post">
+                            <input type="hidden" name="_token"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="name" value="">
+                                    </div>
+
+
+
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <input type="hidden" value="26" name="cmd">
+                                    <!--<input type="submit" value="ADD" class="btn btn-primary">-->
+                                </div>
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">ADD</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!--add role-->
+<div class="modal fade" id="addoffice" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form  action="{{url_for('new_office')}}" method="post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateLabel331">ADD Department</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content panel p-20">
+
+
+                    <div role="tabpanel" class="tab-pane active" id="personal_details313">
+                        <form role="form" action="" method="post">
+                            <input type="hidden" name="_token"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="name" value="">
+                                    </div>
+
+
+
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <input type="hidden" value="26" name="cmd">
+                                    <!--<input type="submit" value="ADD" class="btn btn-primary">-->
+                                </div>
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">ADD</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+
+
+{% endblock %}
+
+</div>
+</body>
+

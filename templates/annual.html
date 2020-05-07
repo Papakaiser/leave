@@ -1,0 +1,119 @@
+
+  <div class="area"></div>
+  <div class="nav-top-sec">
+
+
+        <a href="#" id="bar-setting" class="bar-setting"><i class="fa fa-bars"></i></a>
+    </div>
+  <nav class="main-menu">
+      <!--<div class="app-logo">-->
+            <!--<img src="{{ url_for('static', filename='image/image1.jpeg') }}" width="60"-->
+            <!--height="60" alt="logo" class="bar-logo" width="145px" height="60px">-->
+          <!--<span>G&J</span>-->
+        <!--</div>-->
+       <ul class="app-logo">
+            <li><img src="{{ url_for('static', filename='image/image1.jpeg') }}" width="60"
+            height="54" alt="logo" class="bar-logo">
+          <span id="gj">G&J Tech. Services</span></li>
+        </ul>
+            <ul>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-home fa-2x"></i>
+                        <span class="nav-text">
+                            Dashboard
+                        </span>
+                    </a>
+
+                </li>
+                <li class="has-subnav " data-toggle="dropdown">
+                    <a href="#">
+                        <i class="fa fa-laptop fa-2x nav-item"></i>
+                        <span class="nav-text dropdown-toggle">
+                            Apply for leave
+                        </span>
+                    </a>
+
+
+                </li>
+                <div class="dropdown-menu" id="ttt" style="width:100%; padding:0px">
+                        {% for i in leave_types %}
+                        <div data-id="{{i.leave_id}}" data-name="{{i.name}}" class="dropdown-item side leave_type"
+                             data-toggle="modal" data-target="#exampleModal">{{i.name}}
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                {% if data.isadmin == 1 %}
+                <li class="has-subnav">
+                    <a href=" {{url_for('admdash')}}" target="_blank">
+                       <i class="fa fa-list fa-2x"></i>
+                        <span class="nav-text">
+                            Admin
+                        </span>
+                    </a>
+
+                </li>
+                {% endif %}
+                <!--<li class="has-subnav">-->
+                    <!--<a href="#">-->
+                       <!--<i class="fa fa-folder-open fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                            <!--Pages-->
+                        <!--</span>-->
+                    <!--</a>-->
+
+                <!--</li>-->
+                <!--<li>-->
+                    <!--<a href="#">-->
+                        <!--<i class="fa fa-bar-chart-o fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                            <!--Graphs and Statistics-->
+                        <!--</span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li>-->
+                    <!--<a href="#">-->
+                        <!--<i class="fa fa-font fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                           <!--Quotes-->
+                        <!--</span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li>-->
+                   <!--<a href="#">-->
+                       <!--<i class="fa fa-table fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                            <!--Tables-->
+                        <!--</span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li>-->
+                   <!--<a href="#">-->
+                        <!--<i class="fa fa-map-marker fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                            <!--Maps-->
+                        <!--</span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li>-->
+                    <!--<a href="#">-->
+                       <!--<i class="fa fa-info fa-2x"></i>-->
+                        <!--<span class="nav-text">-->
+                            <!--Documentation-->
+                        <!--</span>-->
+                    <!--</a>-->
+                <!--</li>-->
+            </ul>
+
+            <ul class="logout">
+                <li>
+                   <a href="#">
+                         <i class="fa fa-power-off fa-2x"></i>
+                        <span class="nav-text">
+                            Logout
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </nav>

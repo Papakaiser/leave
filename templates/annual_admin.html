@@ -1,0 +1,168 @@
+<div class="area"></div>
+<div class="nav-top-sec">
+
+
+    <a href="#" id="bar-setting" class="bar-setting"><i class="fa fa-bars"></i></a>
+</div>
+<nav class="main-menu">
+    <!--<div class="app-logo">-->
+    <!--<img src="{{ url_for('static', filename='image/image1.jpeg') }}" width="60"-->
+    <!--height="60" alt="logo" class="bar-logo" width="145px" height="60px">-->
+    <!--<span>G&J</span>-->
+    <!--</div>-->
+    <ul class="app-logo">
+        <li><img src="{{ url_for('static', filename='image/image1.jpeg') }}" width="60"
+                 height="54" alt="logo" class="bar-logo">
+            <span id="gj">G&J Tech. Services</span></li>
+    </ul>
+    <ul>
+        <li>
+            <a href="{{url_for('admdash')}}">
+                <i class="fa fa-home fa-2x"></i>
+                <span class="nav-text">
+                            Dashboard
+                        </span>
+            </a>
+
+        </li>
+        <li class="has-subnav">
+            <a href="{{url_for('admleave')}}">
+                <i class="fa fa-laptop fa-2x nav-item"></i>
+                <span class="nav-text">
+                            Leave
+                        </span>
+            </a>
+
+
+        </li>
+        <!--<div class="dropdown-menu" id="ttt" style="width:100%; padding:0px">-->
+        <!--{% for i in leave_types %}-->
+        <!--<div data-id="{{i.leave_id}}" data-name="{{i.name}}" class="dropdown-item side leave_type"-->
+        <!--data-toggle="modal" data-target="#exampleModal">{{i.name}}-->
+        <!--</div>-->
+        <!--{% endfor %}-->
+
+        <!--</div>-->
+        <li class="has-subnav">
+            <a href="{{url_for('staff_info')}}">
+                <i class="fa fa-list fa-2x"></i>
+                <span class="nav-text">
+                            Staff Information
+                        </span>
+            </a>
+
+        </li>
+        <li class="has-subnav">
+            <a href="#">
+                <i class="fa fa-folder-open fa-2x" data-toggle="modal" data-target="#resetpassword"></i>
+                <span class="nav-text">
+                            Reset Password
+                        </span>
+            </a>
+
+        </li>
+        <li>
+            <a href="{{url_for('holidays')}}">
+                <i class="fa fa-bar-chart-o fa-2x"></i>
+                <span class="nav-text">
+                            Holidays
+                        </span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fa fa-font fa-2x"></i>
+                <span class="nav-text">
+                           Leave Types
+                        </span>
+            </a>
+        </li>
+        <li>
+            <a href="{{url_for('dept')}}">
+                <i class="fa fa-table fa-2x"></i>
+                <span class="nav-text">
+                            Departments
+                        </span>
+            </a>
+        </li>
+        <!--<li>-->
+        <!--<a href="#">-->
+        <!--<i class="fa fa-map-marker fa-2x"></i>-->
+        <!--<span class="nav-text">-->
+        <!--Maps-->
+        <!--</span>-->
+        <!--</a>-->
+        <!--</li>-->
+        <!--<li>-->
+        <!--<a href="#">-->
+        <!--<i class="fa fa-info fa-2x"></i>-->
+        <!--<span class="nav-text">-->
+        <!--Documentation-->
+        <!--</span>-->
+        <!--</a>-->
+        <!--</li>-->
+    </ul>
+
+    <ul class="logout">
+        <li>
+            <a href="#">
+                <i class="fa fa-power-off fa-2x"></i>
+                <span class="nav-text">
+                            Logout
+                        </span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Modal -->
+<div class="modal fade" id="resetpassword" data-backdrop="static" tabindex="-1" role="dialog"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form action="{{url_for('resetpassword')}}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Password Reset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tab-content panel p-20">
+
+
+                        <div role="tabpanel" class="tab-pane active" id="personal_details">
+
+                            <input type="hidden" name="id"
+                                   value="">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+                                        <label>Staff Number</label>
+                                        <input type="text" class="form-control" required=""
+                                               name="pass_reset" value="">
+                                    </div>
+
+
+                                    <!--<div class="col-md-12">-->
+                                    <!--<input type="hidden" value="26" name="cmd">-->
+                                    <!--&lt;!&ndash;<input type="submit" value="Update" class="btn btn-primary">&ndash;&gt;-->
+                                    <!--</div>-->
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

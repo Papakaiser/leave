@@ -1,0 +1,690 @@
+{% extends 'layout_admin.html' %}
+{% block head %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="{{ url_for('static', filename='calender/packages/core/main.css') }}" rel='stylesheet'/>
+<link href="{{ url_for('static', filename='calender/packages/daygrid/main.css') }}" rel='stylesheet'/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<script src="https://unpkg.com/js-datepicker"></script>
+
+<meta charset="UTF-8">
+
+<script>
+    $(document).ready( function () {
+        $('#myTable').DataTable({
+            scrollX:true, scrollY:true
+        });
+        $('#myTable1').DataTable();
+
+        var callback = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('select[name="role"]').val(data.role_id);
+                $('input[name="duration"]').val(data.duration);
+                $('select[name="carryf"]').val(data.carry_forward);
+                $('input[name="carryd"]').val(data.days_carry_forward);
+
+                $('input[name="id"]').val(data.id);
+            }
+
+          var callleave = function(response){
+                var data = JSON.parse(response);
+                console.log(data)
+                $('input[name="leave_name"]').val(data.name);
+                $('select[name="gender"]').val(data.gender);
+
+
+                $('input[name="id"]').val(data.id);
+            }
+
+        $('#myTable1').on('click', '.update_role_leave_days',function(){
+            var id = $(this).data('id');
+            console.log('leave_types id is ', id)
+            $.get('{{url_for('get_role_leave_days', id='')}}'+id, {}, callback )
+        });
+
+         $('#myTable').on('click', '.update_leave',function(){
+            var id = $(this).data('id');
+            console.log('leave id is ', id)
+            $.get('{{url_for('update_leave_types', id='')}}'+id, {}, callleave )
+        });
+
+         $('#myTable').on('click', '.delete_leave',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
+
+        });
+
+        $('#myTable1').on('click', '.remove_role_leave_days',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
+
+        });
+    });
+
+
+
+
+
+
+
+
+
+
+</script>
+
+<title>leave</title>
+
+{% endblock %}
+
+<body>
+
+{% block contentdetails %}
+
+<div class="container-fluid conti1 ">
+
+    <div class="row" id="pdetails">
+
+        <div class="col-sm-2" id="pix">
+
+
+        </div>
+        <div class="col-md-10"><h3 class="tip">Leave</h3>
+            <div class="row wor">
+                <div class="col-md-4">
+                    <div class="card">
+
+                        <div class="card-header">
+                            Leave Types
+                            <div align="right" class="float-right">
+                                <i class="fa fa-user-plus action " data-toggle="modal"
+                                   data-target="#adddata"></i>
+                            </div>
+                        </div>
+
+
+                        <div class="card-body">
+                            <table class="table-striped tab table-bordered" id="myTable" width="100%">
+                                <thead>
+                                <tr>
+
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Actions</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for i in leave_type %}
+                                <tr>
+
+                                    <td>{{i.name}}</td>
+                                    <td>{{'Male' if i.gender == 'm' else 'Female' if i.gender== 'f' else
+                                        'Male/Female'}}
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-edit action update_leave" style="color:green;"
+                                           data-toggle="modal" data-id="{{i.id}}"
+                                           data-target="#updateleave"></i>
+                                        <i class="fa fa-trash action delete_leave" style="color:red;"
+                                           data-toggle="modal" data-id="{{i.id}}"
+                                           data-target="#delete1"
+                                           id="viewuser12"></i>
+                                    </td>
+
+
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="card">
+
+                        <div class="card-header">
+                            Role/Leave Days
+                            <div align="right" class="float-right">
+                                <i class="fa fa-user-plus action " data-toggle="modal"
+                                   data-target="#adddays"></i>
+                            </div>
+                        </div>
+
+
+                        <div class="card-body">
+                            <table class="table-striped tab table-bordered" id="myTable1" width="100%">
+                                <thead>
+                                <tr>
+
+                                    <th>Name</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Duration of Leave</th>
+                                    <th>Carried Forward Allowed</th>
+                                    <th>Carried Forward Days</th>
+                                    <th>Action</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for i in role_leave %}
+                                <tr>
+
+                                    <td>{{i.name}}</td>
+                                    <td>{{'Male' if i.gender == 'm' else 'Female' if i.gender== 'f' else
+                                        'Male/Female'}}
+                                    </td>
+                                    <td>{{i.role_name}}</td>
+                                    <td>{{i.duration}}</td>
+                                    <td>{{'Yes' if i.carry_forward == 1 else 'No'}}</td>
+                                    <td>{{i.days_carry_forward}}</td>
+                                    <td>
+                                        <i class="fa fa-edit action update_role_leave_days" style="color:green;"
+                                           data-toggle="modal" data-id="{{i.id}}"
+                                           data-target="#update_leave_type"></i>
+                                        <i class="fa fa-trash action remove_role_leave_days" style="color:red;"
+                                           data-toggle="modal"
+                                           data-target="#delete2" data-id="{{i.id}}"
+                                           id="viewuser2"></i>
+                                    </td>
+
+
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="card-body">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card-body">
+
+                    </div>
+                </div>
+
+                <!--modal-->
+
+                <!--update leave days modal-->
+
+                <div class="modal fade" id="update_leave_type" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-sl" role="document">
+                        <form action="{{url_for('update_role_leave_days')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabel">Update leave Days</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="tab-content panel p-20">
+
+
+                                        <div role="tabpanel" class="tab-pane active" id="personal_details">
+
+                                            <input type="hidden" name="id"
+                                                   value="">
+                                            <div class="row">
+                                                <div class="col-md-6">
+
+                                                    <div class="form-group">
+                                                        <label>Role</label>
+
+                                                        <select name="role" class="form-control">
+                                                            {% for i in role %}
+                                                            <option value="{{i.id}}">{{i.role_name}}</option>
+
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Duration</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="duration" value="">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group">
+                                                        <label>Carry Forward</label>
+                                                        <select name="carryf" class="form-control">
+
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
+
+
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Carry Days</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="carryd" value="">
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <input type="hidden" value="26" name="cmd">
+                                                    <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+
+                                        <div role="tabpanel" class="tab-pane" id="change-picture1">
+                                            <form role="form" enctype="multipart/form-data">
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+
+                                                        <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                            <input type="text" class="form-control" readonly="">
+                                                        </div>
+
+                                                        <input type="hidden" name="_token"
+                                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                        <input type="submit" value="Update" class="btn btn-primary">
+
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!--update leave modal-->
+
+                <div class="modal fade" id="updateleave" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-sl" role="document">
+                        <form action="{{url_for('updateleavetype')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabela">Update leave</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="tab-content panel p-20">
+
+
+                                        <div role="tabpanel" class="tab-pane active" id="personal_details1">
+
+                                            <input type="hidden" name="id"
+                                                   value="">
+                                            <div class="row">
+                                                <div class="col-md-6">
+
+                                                    <div class="form-group">
+                                                        <label>Name</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="leave_name" value="">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <div class="form-group">
+                                                        <div class="form-group">
+                                                            <label>Gender</label>
+                                                            <select name="gender" class="form-control">
+                                                                <option value="m">Male</option>
+                                                                <option value="f">Female</option>
+                                                                <option value="mf">Male/Female</option>
+
+                                                            </select>
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <div class="col-md-12">
+                                                        <input type="hidden" value="26" name="cmd">
+                                                        <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- delete leave modal-->
+                <div class="modal fade" id="delete1" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form action="{{url_for('remove_leave')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabel2">Remove Holiday</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="id" value="">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- delete role leave days modal-->
+                <div class="modal fade" id="delete2" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form action="{{url_for('remove_role_leave_days')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabel23">Remove Holiday</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="id" value="">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- new leave /days modal-->
+                <div class="modal fade" id="adddata" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-sl" role="document">
+                        <form action="{{url_for('new_leave')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabel4">New leave/Days</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="tab-content panel p-20">
+
+
+                                        <div role="tabpanel" class="tab-pane active" id="personal_details4">
+
+                                            <input type="hidden" name="id"
+                                                   value="">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Leave Name</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="leave" value="">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Gender</label>
+                                                        <select name="carryg" class="form-control">
+
+                                                            <option value="m">Male</option>
+                                                            <option value="f">Female</option>
+                                                            <option value="mf">Male/Female</option>
+
+                                                        </select>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <input type="hidden" value="26" name="cmd">
+                                                    <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+
+                                        <div role="tabpanel" class="tab-pane" id="change-picture19">
+                                            <form role="form" enctype="multipart/form-data">
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+
+                                                        <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                            <input type="text" class="form-control" readonly="">
+                                                        </div>
+
+                                                        <input type="hidden" name="_token"
+                                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                        <input type="submit" value="Update" class="btn btn-primary">
+
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- new leave /days modal-->
+                <div class="modal fade" id="adddays" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-sl" role="document">
+                        <form action="{{url_for('new_leave_days')}}" method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateLabel44">New leave/Days</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="tab-content panel p-20">
+
+
+                                        <div role="tabpanel" class="tab-pane active" id="personal_details44">
+
+                                            <input type="hidden" name="id"
+                                                   value="">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Leave Name</label>
+                                                        <select name="leave" class="form-control">
+                                                            {% for i in leave_type %}
+                                                            <option value="{{i.id}}">{{i.name}}</option>
+
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Role</label>
+
+                                                        <select name="role" class="form-control">
+                                                            {% for i in role %}
+                                                            <option value="{{i.id}}">{{i.role_name}}</option>
+
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Duration</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="duration" value="">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Gender</label>
+                                                        <select name="carryg" class="form-control">
+
+                                                            <option value="m">Male</option>
+                                                            <option value="f">Female</option>
+                                                            <option value="mf">Male/Female</option>
+
+                                                        </select>
+                                                    </div>
+
+
+                                                    <div class="form-group">
+                                                        <label>Carry Forward</label>
+                                                        <select name="carryf" class="form-control">
+
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
+
+
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Carry Days</label>
+                                                        <input type="text" class="form-control" required=""
+                                                               name="carryd" value="">
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <input type="hidden" value="26" name="cmd">
+                                                    <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+
+                                        <div role="tabpanel" class="tab-pane" id="change-picture199">
+                                            <form role="form" enctype="multipart/form-data">
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+
+                                                        <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                            <input type="text" class="form-control" readonly="">
+                                                        </div>
+
+                                                        <input type="hidden" name="_token"
+                                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                        <input type="submit" value="Update" class="btn btn-primary">
+
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    {% endblock %}
+</div>
+</body>
+

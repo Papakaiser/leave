@@ -1,0 +1,532 @@
+{% extends 'layout.html' %}
+{% block head %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="{{ url_for('static', filename='calender/packages/core/main.css') }}" rel='stylesheet'/>
+<link href="{{ url_for('static', filename='calender/packages/daygrid/main.css') }}" rel='stylesheet'/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<script src="https://unpkg.com/js-datepicker"></script>
+<script>
+$(document).ready(function() {
+var  disabledDates = [
+{% for i in holiday %}
+ {{'new Date('}} {{i.date.year}} {{','}} {{i.date.month-1}} {{','}} {{i.date.day}} {{')'}} {{','}}
+{% endfor %}
+ ]
+
+//var disabler = date => date.getMonth() == 4 && date.getDate() == 25;
+var pickerOptions = { id: 1 , noWeekends: true, disableYearOverlay: true,  formatter: (input, date, instance) => {
+    const value = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+    input.value = value // => '1/1/2099'
+ }, disabledDates:disabledDates}
+const start = datepicker('#startdate', pickerOptions )
+const end = datepicker('#endate', pickerOptions )
+
+})
+
+
+</script>
+
+
+<script>
+$(document).ready( function () {
+    $('#myTable').DataTable();
+
+    $('#myTable2').DataTable();
+
+    $('#myTable3').DataTable();
+    $('#myTable4').DataTable({
+     scrollX:true, scrollY:true
+    });
+
+
+    $('#myTable2').on('click', '.leave_type',function () {
+        console.log("Leave type clicked");
+         var id = $(this).data('id');
+         var name = $(this).data('name');
+         console.log("name is ", name, "and id is ", id);
+         $('#leave_type_txt').html(name);
+         $('#leave_type_id').val( id );
+    } );
+
+    var url = window.location.href;
+    if((''+url).endsWith('#linemanagermodal')) {
+        var newUrl = url.substr(0, url.indexOf('#linemanagermodal'));
+        window.history.pushState({},"", newUrl);
+        console.log("Setting url ro ", newUrl);
+        $('#linemanagermodal').modal('show');
+    }
+
+} );
+
+
+</script>
+
+<script>
+    //
+    $(document).ready( function () {
+     $('.approve_reject_btn').click(function (e) {
+        e.preventDefault();
+        console.log("approve/reject clicked");
+         var id = $(this).data('id');
+         var status = $(this).data('status');
+         console.log("status is ", status, "and id is ", id);
+         $('#leave_approval_status').val(status);
+         $('#leave_history_id').val( id );
+         $('#linemanagermodal').modal('hide');
+    } );
+    });
+
+</script>
+<meta charset="UTF-8">
+
+
+<title>leave</title>
+
+{% endblock %}
+
+<body>
+
+{% block contentdetails %}
+
+<div class="container-fluid conti1 ">
+
+    <div class="row" id="pdetails">
+
+        <div class="col-sm-2" id="pix">
+            <!--<div class="card" style="width:100%">-->
+                <!--<div class="dash">-->
+                    <!--<a class="nav-link pit" href="#">DASHBOARD</a>-->
+                <!--</div>-->
+                <!--<div class="nav-item dropdown">-->
+                    <!--<a class="nav-link dropdown-toggle pit1" href="#" id="navbardrop" data-toggle="dropdown">-->
+                        <!--APPLY FOR LEAVE-->
+                    <!--</a>-->
+                    <!--<div class="dropdown-menu" style="width:100%; padding:0px">-->
+                        <!--{% for i in leave_types %}-->
+                        <!--<div data-id="{{i.leave_id}}" data-name="{{i.name}}" class="dropdown-item side leave_type"-->
+                             <!--data-toggle="modal" data-target="#exampleModal">{{i.name}}-->
+                        <!--</div>-->
+                        <!--{% endfor %}-->
+
+                    <!--</div>-->
+
+
+                <!--</div>-->
+            <!--</div>-->
+
+        </div>
+        <div class="col-sm-10">
+            <div class="msg">{{ msg }}</div>
+            <b><h3>
+                <i class="fa fa-dashboard">DASHBOARD</i></h3></b>
+            <div class="row wor">
+                {% for i in leave_data %}
+                <div class="col-xs-12 col-sm-6 col-lg-3">
+                    <div class="brand-card">
+                        <div class="brand-card-header bg-twitter">
+                            <div class="leave_type">{{i.name}} Leave</div>
+
+                        </div>
+                        <div class="leave-card-body">
+
+                            <div class="leave-stat right-border">
+                                <div class="text-value">{{i.duration}} days</div>
+                                <div class="text-uppercase text-muted small">Entitlement</div>
+                            </div>
+                            <div class="leave-stat">
+                                <div class="text-value">{{i.duration - i.total}}</div>
+                                <div class="text-uppercase text-muted small">remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4 id="lh4"> Leave History</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+
+                        <div class="col-md-12 ">
+                            <table class="table-striped tab table-bordered" id="myTable">
+                                <thead>
+                                <tr>
+
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>No. of Days</th>
+                                    <th>Status</th>
+                                    <th>Requested Date</th>
+                                    <th>Approved/Rejected Date</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for i in history %}
+                                <tr>
+
+                                    <td>{{i.name}}</td>
+                                    <td>{{i.start_date}}</td>
+                                    <td>{{i.end_date}}</td>
+                                    <td>{{i.requested_leave_days}}</td>
+                                    <td>{{i.Status}}</td>
+                                    <td>{{i.requested_date}}</td>
+                                    <td>{{i.Approved_Rejected_date}}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Modals -->
+<!--leave application  Modal -->
+
+<div class="modal fade " id="exampleModal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="leave_type_txt"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel">Leave Request</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{{url_for('request_leave')}}">
+                <div class="modal-body">
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label id="inputs" for="startdate">Start Date:</label>
+                        </div>
+                        <div><input class="form-control" type="text" id="startdate" autocomplete="off"
+                                    name="startdate"></div>
+                        <input class="form-control" type="text" id="leave_type_id"
+                               name="leave_type_id" hidden>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label id="inpute" for="endate">End Date:</label>
+                        </div>
+                        <div>
+                            <input class="form-control" type="text" id="endate" name="endate">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label for="endate">Comment:</label>
+                        </div>
+                        <div>
+                            <textarea class="form-control" type="text" name="Comment"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="Submit" class="btn btn-success">APPLY</button>
+                </div>
+
+
+            </form>
+    </div>
+    </div>
+</div>
+
+
+<!-- line manager comment -->
+
+<div class="modal fade " id="commentModal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="leave_type_txt1"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel1">Line Managers Comment</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{{url_for('approve_reject')}}">
+                <div class="modal-body">
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label id="comment" for="comment">comment:</label>
+                        </div>
+                        <div><input class="form-control" type="text" id="lmcomment"
+                                    name="comment"></div>
+                    </div>
+                    <div><input class="form-control" type="text" id="leave_approval_status"
+                                name="status" hidden></div>
+                </div>
+                <div><input class="form-control" type="text" id="leave_history_id"
+                            name="id" hidden>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">done</button>
+                </div>
+</form>
+        </div>
+
+    </div>
+</div>
+
+<!-- line manager Modals -->
+
+<div class="modal fade " id="linemanagermodal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="leave_type_txt2"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel2">Pending Leave Requests</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--<form method="POST" action="{{url_for('request_leave')}}">-->
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12 ">
+                        <table class="table-striped tab table-bordered" id="myTable2">
+                            <thead>
+                            <tr>
+                                <th>Staff Name</th>
+                                <th>Leave Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Comment</th>
+                                <th>Requested Date</th>
+                                <th>Reject</th>
+                                <th>Approve</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for i in pending %}
+                            <tr>
+                                <td>{{i.staff_name}}</td>
+                                <td>{{i.name}}</td>
+                                <td>{{i.start_date}}</td>
+                                <td>{{i.end_date}}</td>
+                                <td>{{i.comment}}</td>
+                                <td>{{i.requested_date}}</td>
+                                <td><a href="{{url_for('approve_reject', id=i.id, status= 'rejected' )}}"
+                                       data-id="{{i.id}}" id="reject" data-status="rejected"
+                                       class="btn btn-danger approve_reject_btn" data-toggle="modal"
+                                       data-target="#commentModal">Reject</a></td>
+                                <td><a href="{{url_for('approve_reject', id=i.id, status= 'approved' )}}" id="approve"
+                                       data-id="{{i.id}}" data-status="approved"
+                                       class="btn btn-success approve_reject_btn" data-toggle="modal"
+                                       data-target="#commentModal">Approve</a></td>
+
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+        <!--</form>-->
+    </div>
+</div>
+
+
+<!-- Approved leave Modals -->
+<div class="modal fade " id="approved_leave" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="leave_type_txt3"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel3">Approved Leave</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--<form method="POST" action="{{url_for('request_leave')}}">-->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <table class="table-striped tab table-bordered" id="myTable3">
+                            <thead>
+                            <tr>
+                                <th>Staff Name</th>
+                                {% if data.role == 3 %}
+                                <th>Office</th>
+                                <th>Department</th>
+                                {% endif %}
+                                <th>Leave Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+
+                                <th>Requested Date</th>
+
+
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for i in approved %}
+                            <tr>
+                                <td>{{i.staff_name}}</td>
+                                {% if data.role == 3 %}
+                                <td>{{i.station}}</td>
+                                <td>{{i.department}}</td>
+                                 {% endif %}
+
+
+                                <!--<div class="card">-->
+                                <td>{{i.name}}</td>
+                                <td>{{i.start_date}}</td>
+                                <td>{{i.end_date}}</td>
+                                <td>{{i.requested_date}}</td>
+                                <!--</div>-->
+
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+        <!--</form>-->
+    </div>
+</div>
+
+<!-- change password -->
+
+<div class="modal fade " id="changepassword" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="changepassword1"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel13">CHANGE PASSWORD</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{{url_for('changepassword')}}">
+                <div class="modal-body">
+
+                    <div class="form-group">
+                                    <label>Current Password</label>
+                                    <input type="password" class="form-control" required="" name="current_password">
+                                </div>
+                    <div class="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" class="form-control" required="" name="new_password">
+                                </div>
+                    <div class="form-group">
+                                    <label>Confirm Password</label>
+                                    <input type="password" class="form-control" required="" name="confirm_password">
+                                </div>
+
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+
+        </div>
+        </form>
+    </div>
+</div>
+</div>
+
+    <!-- remaining leave Modals -->
+<div class="modal fade " id="remaining_leave_days" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div><span class="modal-title" id="leave_type_txt33"></span>&nbsp;<span
+                        class="modal-title" id="exampleModalLabel33">Remaining Leave</span></div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--<form method="POST" action="{{url_for('request_leave')}}">-->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <table class="table-striped tab table-bordered" id="myTable4" width="100%">
+                            <thead>
+                            <tr>
+                                {% for i in headers%}
+                                <th>{{i}}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for i in all_info %}
+                            <tr>
+                                {%  for j in i %}
+                                    <td>{{j}}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+        <!--</form>-->
+    </div>
+</div>
+{% endblock %}
+
+
+
+</body>
+

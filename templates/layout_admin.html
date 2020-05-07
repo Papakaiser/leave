@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/c.js') }}"></script>
+	<!--<script src="{3{ url_for('static', filename='js/a.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/b.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/d.js') }}"></script>
+    <title>{% block title %}{% endblock %}</title>
+
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style3.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='manu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+				{% block head %}{% endblock %}
+
+
+</head>
+<body class="loggedin">
+<header class="app-header navbar headi">
+    <button type="button" class="d-lg-none navbar-toggler"
+        data-sidebar-toggler="true"><span class="navbar-toggler-icon"></span></button>
+    <!--<a full="[object Object]"-->
+        <!--minimized="[object Object]" class="navbar-brand"><img src={3{url_for('static', filename='image/image1.jpeg')}} width="60"-->
+            <!--height="60" alt="CoreUI Logo" class="navbar-brand-full gj"><img src={3{url_for('static', filename='image/image1.jpeg')}}-->
+            <!--width="30" height="30" alt="CoreUI Logo" class="navbar-brand-minimized"></a>-->
+    <!--<button type="button"-->
+        <!--class="d-md-down-none navbar-toggler" data-sidebar-toggler="true"><span-->
+            <!--class="navbar-toggler-icon"></span></button>-->
+    <ul class="d-md-down-none navbar-nav">
+        <li class="px-3 nav-item"><a href="#" class="nav-link" id="alp">LEAVE PORTAL-Administrator</a></li>
+        <!--<li class="px-3 nav-item"><a>{3{username}}</a></li>-->
+        <!--<li class="px-3 nav-item"><a href="#" class="nav-link">Settings</a></li>-->
+    </ul>
+    <ul class="ml-auto navbar-nav">
+        <!--<li class="d-md-down-none dropdown nav-item"><a aria-haspopup="true" href="#" class="nav-link"-->
+                <!--aria-expanded="false"><i class="icon-bell"></i><span class="badge badge-danger badge-pill">5</span></a>-->
+            <!--<div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">-->
+                <!--<div tabindex="-1" class="text-center dropdown-header"><strong>You have 5 notifications</strong></div>-->
+                <!--<button type="button" tabindex="0" class="dropdown-item"><i class="icon-user-follow text-success"></i>-->
+                    <!--New user registered</button><button type="button" tabindex="0" class="dropdown-item"><i-->
+                        <!--class="icon-user-unfollow text-danger"></i> User deleted</button><button type="button"-->
+                    <!--tabindex="0" class="dropdown-item"><i class="icon-chart text-info"></i> Sales report is-->
+                    <!--ready</button><button type="button" tabindex="0" class="dropdown-item"><i-->
+                        <!--class="icon-basket-loaded text-primary"></i> New client</button><button type="button"-->
+                    <!--tabindex="0" class="dropdown-item"><i class="icon-speedometer text-warning"></i> Server-->
+                    <!--overloaded</button>-->
+                <!--<div tabindex="-1" class="text-center dropdown-header"><strong>Server</strong></div><button-->
+                    <!--type="button" tabindex="0" class="dropdown-item">-->
+                    <!--<div class="text-uppercase mb-1"><small><b>CPU Usage</b></small></div>-->
+                    <!--<div class="progress-xs progress">-->
+                        <!--<div class="progress-bar bg-info" role="progressbar" aria-valuenow="25" aria-valuemin="0"-->
+                            <!--aria-valuemax="100" style="width: 25%;"></div>-->
+                    <!--</div><small class="text-muted">348 Processes. 1/4 Cores.</small>-->
+                <!--</button><button type="button" tabindex="0" class="dropdown-item">-->
+                    <!--<div class="text-uppercase mb-1"><small><b>Memory Usage</b></small></div>-->
+                    <!--<div class="progress-xs progress">-->
+                        <!--<div class="progress-bar bg-warning" role="progressbar" aria-valuenow="70" aria-valuemin="0"-->
+                            <!--aria-valuemax="100" style="width: 70%;"></div>-->
+                    <!--</div><small class="text-muted">11444GB/16384MB</small>-->
+                <!--</button><button type="button" tabindex="0" class="dropdown-item">-->
+                    <!--<div class="text-uppercase mb-1"><small><b>SSD 1 Usage</b></small></div>-->
+                    <!--<div class="progress-xs progress">-->
+                        <!--<div class="progress-bar bg-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0"-->
+                            <!--aria-valuemax="100" style="width: 90%;"></div>-->
+                    <!--</div><small class="text-muted">243GB/256GB</small>-->
+                <!--</button>-->
+            <!--</div>-->
+        <!--</li>-->
+        <!--<li class="px-3 nav-item"><a>{3{data.first_name }} {3{data.middle_name }} {3{data.last_name }}</a></li>-->
+
+        <!--{2% if data.role == 2 or data.role==3 %}-->
+            <!--<li class="d-md-down-none dropdown nav-item"><a aria-haspopup="true" href="#approved_leave" class="nav-link"-->
+                    <!--aria-expanded="false"><i class="icon-list" data-toggle="modal" data-target="#approved_leave"></i><span-->
+                         <!--&gt;</span></a>-->
+                <!--<div tabindex="-1" role="menu" aria-hidden="true"-->
+                    <!--class="dropdown-menu-lg dropdown-menu dropdown-menu-right">-->
+                    <!--<div tabindex="-1" class="text-center dropdown-header"><strong>You have 15 pending tasks</strong></div>-->
+                    <!--<button type="button" tabindex="0" class="dropdown-item">-->
+                        <!--<div class="small mb-1">Upgrade NPM &amp; Bower <span class="float-right"><strong>0%</strong></span>-->
+                        <!--</div>-->
+                        <!--<div class="progress-xs progress">-->
+                            <!--<div class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0"-->
+                                <!--aria-valuemax="100" style="width: 0%;"></div>-->
+                        <!--</div>-->
+                    <!--</button>-->
+                    <!--<button type="button" tabindex="0" class="dropdown-item">-->
+                        <!--<div class="small mb-1">ReactJS Version <span class="float-right"><strong>25%</strong></span></div>-->
+                        <!--<div class="progress-xs progress">-->
+                            <!--<div class="progress-bar bg-danger" role="progressbar" aria-valuenow="25" aria-valuemin="0"-->
+                                <!--aria-valuemax="100" style="width: 25%;"></div>-->
+                        <!--</div>-->
+                    <!--</button><button type="button" tabindex="0" class="dropdown-item">-->
+                        <!--<div class="small mb-1">VueJS Version <span class="float-right"><strong>50%</strong></span></div>-->
+                        <!--<div class="progress-xs progress">-->
+                            <!--<div class="progress-bar bg-warning" role="progressbar" aria-valuenow="50" aria-valuemin="0"-->
+                                <!--aria-valuemax="100" style="width: 50%;"></div>-->
+                        <!--</div>-->
+                    <!--</button><button type="button" tabindex="0" class="dropdown-item">-->
+                        <!--<div class="small mb-1">Add new layouts <span class="float-right"><strong>75%</strong></span></div>-->
+                        <!--<div class="progress-xs progress">-->
+                            <!--<div class="progress-bar bg-info" role="progressbar" aria-valuenow="75" aria-valuemin="0"-->
+                                <!--aria-valuemax="100" style="width: 75%;"></div>-->
+                        <!--</div>-->
+                    <!--</button><button type="button" tabindex="0" class="dropdown-item">-->
+                        <!--<div class="small mb-1">Angular 2 Cli Version <span class="float-right"><strong>100%</strong></span>-->
+                        <!--</div>-->
+                        <!--<div class="progress-xs progress">-->
+                            <!--<div class="progress-bar bg-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"-->
+                                <!--aria-valuemax="100" style="width: 100%;"></div>-->
+                        <!--</div>-->
+                    <!--</button><button type="button" tabindex="0" class="text-center dropdown-item"><strong>View all-->
+                            <!--tasks</strong></button>-->
+                <!--</div>-->
+            </li>
+
+            <!--<li class="d-md-down-none dropdown nav-item " ><a aria-haspopup="true" href="#linemanagermodal" class="nav-link"-->
+                    <!--aria-expanded="false" ><i class="icon-envelope-letter " data-toggle="modal" data-target="#linemanagermodal"></i><span-->
+                        <!--class="badge badge-info badge-pill" >{3{ pending_count }}</span></a>-->
+        <!--{2% endif %}-->
+
+
+        <li class="nav-item">
+			<a aria-haspopup="true" href="#" class="nav-link" data-toggle="dropdown" id="dropdownMenuButton"  aria-expanded="false"><img
+                    src={{url_for('static', filename='image/IMG-1.jpg')}} class="img-avatar" alt="admin@bootstrapmaster.com"></a>
+            <div tabindex="-1" role="menu" aria-labelledby="dropdownMenuButton" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
+                <!--<div tabindex="-1" class="text-center dropdown-header"><strong>Account</strong></div>-->
+                <!--<button-->
+                    <!--type="button" tabindex="0" class="dropdown-item"><i class="fa fa-bell-o"></i> Updates<span-->
+                        <!--class="badge badge-info">42</span></button><button type="button" tabindex="0"-->
+                    <!--class="dropdown-item"><i class="fa fa-envelope-o"></i> Messages<span-->
+                        <!--class="badge badge-success">42</span></button><button type="button" tabindex="0"-->
+                    <!--class="dropdown-item"><i class="fa fa-tasks"></i> Tasks<span-->
+                        <!--class="badge badge-danger">42</span></button><button type="button" tabindex="0"-->
+                    <!--class="dropdown-item"><i class="fa fa-comments"></i> Comments<span-->
+                        <!--class="badge badge-warning">42</span></button>-->
+                <!--<div tabindex="-1" class="text-center dropdown-header"><strong>Account</strong></div>-->
+                <!--<div class="dropdown">-->
+                <!--<button-->
+                    <!--type="button" tabindex="0" class="dropdown-item"><i class="fa fa-user"></i> Profile</button>-->
+                <!--<div class="dropdown-content">-->
+    <!--<div class="card">-->
+  <!--<div class="card-body pdetails">-->
+     <!--<a> Staff ID: {3{ data.staff_number}}</a>-->
+      <!--<a>Email: {3{ data.email}}</a>-->
+      <!--<a>Department: {3{ data.department}}</a>-->
+     <!--<a> Position: {3{ data.position}}</a>-->
+      <!--<a>Phone no: {3{ data.phone_number}}</a>-->
+     <!--<a> Manager: {3{ data.line_manager_name}}</a>-->
+  <!--</div>-->
+<!--</div>-->
+  <!--</div>-->
+<!--</div>-->
+
+                <!--<button-->
+                    <!--type="button" tabindex="0" class="dropdown-item"><i class="fa fa-wrench"></i>-->
+                    <!--Settings</button><button type="button" tabindex="0" class="dropdown-item"><i class="fa fa-usd"></i>-->
+                    <!--Payments<span class="badge badge-secondary">42</span></button><button type="button" tabindex="0"-->
+                    <!--class="dropdown-item"><i class="fa fa-file"></i> Projects<span-->
+                        <!--class="badge badge-primary">42</span></button>-->
+                <div tabindex="-1" class="dropdown-divider"></div>
+                <button type="button" tabindex="0" class="dropdown-item" data-toggle="modal" data-target="#changepassword">
+                    <i class="fa fa-shield "  ></i> Change Password
+                </button>
+                <button type="button"
+                        tabindex="0" class="dropdown-item"><a href="{{ url_for('logout') }}"><i class="fa fa-lock"></i> Logout</a></button>
+            </div>
+        </li>
+    </ul>
+    <button type="button" class="d-md-down-none navbar-toggler"><span class="navbar-toggler-icon bot"></span></button>
+      <button type="button" class="d-md-down-none navbar-toggler"><span class="navbar-toggler-icon bot"></span></button>
+     <button type="button" class="d-md-down-none navbar-toggler"><span class="navbar-toggler-icon bot"></span></button>
+
+</header>
+<!--<div>-->
+<div class="side-bar"> {% include 'annual_admin.html' %}</div>
+<div>{% block contentdetails %}{% endblock %}</div>
+
+		<div class="content">
+			{% block content %}{% endblock %}
+		</div>
+
+
+
+</body>
+</html>
