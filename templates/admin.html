@@ -121,7 +121,17 @@ $(document).ready( function () {
             <!--</div>-->
 
         </div>
-        <div class="col-sm-10"><h3 class="tip">DASHBOARD</h3>
+        <div class="col-sm-10">
+           {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span></div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <h3 class="tip">DASHBOARD</h3>
             <div class="row wor">
                 <div class="card">
                     <div class="card-header"><strong>Basic Form</strong> Elements</div>
@@ -335,5 +345,26 @@ $(document).ready( function () {
                         <button class="btn btn-sm btn-danger" type="reset"> Reset</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
+
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href="{{ url_for('logout') }}";
+  }, delay);
+}
+</script>
 </body>
 

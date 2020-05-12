@@ -427,7 +427,7 @@ text-shadow: 3px 2px 3px rgba(255,255,255,.2);
 
 .action {
     font-size:20px !important;
-   width:20px;
+    width:20px;
     padding-right:8px;
     cursor:pointer;
 
@@ -437,3 +437,20 @@ text-shadow: 3px 2px 3px rgba(255,255,255,.2);
         padding-bottom: 15px;
 }
 
+.add {
+    cursor:pointer;
+    width:auto;
+    height:auto;
+    padding-right:5px;
+}
+
+.icon{
+        display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.dt-buttons {
+    margin-left:200px;
+
+)

@@ -61,6 +61,7 @@ def login():
             session['username'] = account[1]
             # Redirect to home page
             print('Logged in successfully!')
+            flash('Logged in successfully!', 'success')
             return redirect('/dashboard')
         else:
             # Account doesnt exist or username/password incorrect
@@ -76,6 +77,7 @@ def logout():
     session.pop('id', None)
     session.pop('username', None)
     # Redirect to login page
+
     return redirect(url_for('login'))
 
 
@@ -161,7 +163,7 @@ def dashboard():
 def get_leave_duration(data, role, leave_id, gender):
     duration = 0
     for i in  data:
-        print('searching ', i, 'for', role, leave_id)
+        # print('searching ', i, 'for', role, leave_id)
         if str(i['level']) == str(role) and str(i['leave_id']) == str(leave_id) and gender in str(i['gender']):
             duration = i['duration']
             break
@@ -296,9 +298,10 @@ def request_leave():
 
     print(data1['level'])
     print(data1['gender'])
+    print('role is ',data1['role'])
     print(leave_type_id)
 
-    data3 = modal.approved_pending_leave(username,leave_type_id)
+    data3 = modal.approved_pending_leave(username,leave_type_id,data1['role'])
     print(data3)
     line_m = data1['line_manager']
     s_id = data1['staff_number']
@@ -307,7 +310,7 @@ def request_leave():
         datar = int(data3['duration']) - int(data3['total'])
     else:
         #user has not applied for for any leave of this type so he has all the days left. Get the total days
-        total_duration = modal.get_leave_total_duration(leave_type_id)
+        total_duration = modal.get_leave_total_duration(leave_type_id,data1['role'])
         datar = total_duration['duration']
         print('fetched total duration from another src', datar)
     start1 = datetime.datetime.strptime(start, '%Y-%m-%d')
@@ -333,10 +336,10 @@ def request_leave():
         subject = "Leave Request"
         message = "hello %s, %s has applied for %s leave days. regards, leave planner"%(data1['line_manager_name'],data1['last_name'],requested_leave_days)
         mail.send_mail([data1['line_manager_email']], message, subject, [data1['email']])
-        flash("LEAVE APPLICATION SUCCESSFUL")
+        flash("LEAVE APPLICATION SUCCESSFUL", 'success')
         return redirect('/dashboard')
     else:
-        flash("SORRY! YOU DO NOT HAVE THAT NUMBER OF DAYS REMAINING")
+        flash("SORRY! YOU DO NOT HAVE THAT NUMBER OF DAYS REMAINING", 'error')
         return redirect('/dashboard')
 
 
@@ -388,10 +391,13 @@ def changepassword():
             query = modal.new_password(pw_hash,username)
             print(query)
             message = "Password changed successfully"
+            flash('Password changed successfully', 'success')
         else:
             message = "New password and confirmed passwords do not match"
+            flash('New password and confirmed passwords do not match', 'error')
     else:
         message = "Password incorrect"
+        flash('Incorrect password', 'error')
     return redirect('/dashboard')
 
 
@@ -471,6 +477,7 @@ def updateleavetype():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('admleave')
 
 
@@ -482,7 +489,7 @@ def remove_leave():
     query = modal.remove_leave(nid)
 
     print('deleted is ', query)
-
+    flash('Delete Successful')
     return redirect('admleave')
 
 
@@ -501,6 +508,7 @@ def update_role_leave_days():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('admleave')
 
 
@@ -511,7 +519,7 @@ def remove_role_leave_days():
     query = modal.remove_role_leave_days(nid)
 
     print('deleted is ', query)
-
+    flash('Deletion Successful')
     return redirect('admleave')
 
 
@@ -607,6 +615,7 @@ def update_departments():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('departments')
 
 
@@ -621,6 +630,7 @@ def update_roles():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('departments')
 
 
@@ -635,6 +645,7 @@ def update_station():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('departments')
 
 
@@ -687,6 +698,7 @@ def updateuser():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('staff_info')
 
 
@@ -702,6 +714,7 @@ def updateholiday():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Update Successful')
     return redirect('holidays')
 
 
@@ -712,9 +725,22 @@ def remove_holiday():
     query = modal.remove_holiday(nid)
 
     print('deleted is ', query)
-
+    flash('Deletion Successful')
     return redirect('holidays')
 
+
+@app.route('/remove_user', methods=['POST'])
+def remove_user():
+    print('id is', request.form)
+    nid = request.form['id']
+    get_staff = modal.get_staff(nid)
+    query = modal.remove_user(nid)
+    remove_login = modal.remove_userlogin(get_staff['staff_number'])
+
+    print('deleted is ', query)
+    print('login deleted is', remove_login)
+    flash('Deletion Successful', 'success')
+    return redirect('/dashboard')
 
 @app.route('/remove_department', methods=['POST'])
 def remove_department():
@@ -728,7 +754,7 @@ def remove_department():
     connection.close()
 
     print('deleted department is ', query)
-
+    flash('Deletion Successful')
     return redirect('departments')
 
 
@@ -743,7 +769,7 @@ def remove_role():
     cursor.close()
     connection.close()
     print('deleted role is ', query)
-
+    flash('Deletion Successful')
     return redirect('departments')
 
 
@@ -759,7 +785,7 @@ def remove_office():
     connection.close()
 
     print('deleted office is ', query)
-
+    flash('Deletion Successful')
     return redirect('departments')
 
 
@@ -784,6 +810,7 @@ def new_holiday():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('holidays')
 
 
@@ -835,7 +862,6 @@ def newuser():
     query = "insert into personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', role='%s',position='%s', staff_number='%s', profile_pix='%s'" % (
         n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station,
         n_role, n_position, n_staffn, n_pix)
-
     print('inserted user is ', query)
     cursor.execute(query)
     cursor.close()
@@ -858,6 +884,7 @@ def new_leave_days():
     cursor.execute(query1)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('admleave')
 
 
@@ -872,6 +899,7 @@ def new_leave():
     cursor.execute(query1)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('admleave')
 
 
@@ -884,6 +912,7 @@ def new_department():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('departments')
 
 
@@ -896,6 +925,7 @@ def new_role():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('departments')
 
 
@@ -908,6 +938,7 @@ def new_office():
     cursor.execute(query)
     cursor.close()
     connection.close()
+    flash('Creation Successful')
     return redirect('departments')
 
 

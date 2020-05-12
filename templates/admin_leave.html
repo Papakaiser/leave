@@ -97,16 +97,26 @@
 
 
         </div>
-        <div class="col-md-10"><h3 class="tip">Leave</h3>
-            <div class="row wor">
-                <div class="col-md-4">
+        <div class="col-md-10">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span></div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <h3 class="tip">Leave</h3>
+            <div>
+                <div class="col-md-12">
                     <div class="card">
 
                         <div class="card-header">
                             Leave Types
-                            <div align="right" class="float-right">
-                                <i class="fa fa-user-plus action " data-toggle="modal"
-                                   data-target="#adddata"></i>
+                            <div class="float-right icon">
+                                <i class="fa fa-user-plus add " data-toggle="modal"
+                                   data-target="#adddata"></i><span>Add New</span>
+
                             </div>
                         </div>
 
@@ -149,14 +159,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-12">
                     <div class="card">
 
                         <div class="card-header">
                             Role/Leave Days
-                            <div align="right" class="float-right">
-                                <i class="fa fa-user-plus action " data-toggle="modal"
-                                   data-target="#adddays"></i>
+                            <div class="float-right icon">
+                                <i class="fa fa-user-plus add" data-toggle="modal"
+                                   data-target="#adddays"></i><span>Add New</span>
                             </div>
                         </div>
 
@@ -683,6 +693,22 @@
 
     </div>
 
+<script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
+
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href="{{ url_for('logout') }}";
+  }, delay);
+}
+</script>
 
     {% endblock %}
 </div>

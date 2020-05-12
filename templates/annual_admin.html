@@ -69,14 +69,14 @@
                         </span>
             </a>
         </li>
-        <li>
-            <a href="#">
-                <i class="fa fa-font fa-2x"></i>
-                <span class="nav-text">
-                           Leave Types
-                        </span>
-            </a>
-        </li>
+        <!--<li>-->
+            <!--<a href="#">-->
+                <!--<i class="fa fa-font fa-2x"></i>-->
+                <!--<span class="nav-text">-->
+                           <!--Leave Types-->
+                        <!--</span>-->
+            <!--</a>-->
+        <!--</li>-->
         <li>
             <a href="{{url_for('dept')}}">
                 <i class="fa fa-table fa-2x"></i>
@@ -105,7 +105,7 @@
 
     <ul class="logout">
         <li>
-            <a href="#">
+            <a href="{{ url_for('logout') }}">
                 <i class="fa fa-power-off fa-2x"></i>
                 <span class="nav-text">
                             Logout
