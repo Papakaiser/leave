@@ -253,3 +253,7 @@ def all_leave_types():
 def get_drs(lm):
     query = " select * from personal_data where line_manager = %s" % lm
     return db.get_many(connection, query)
+
+def logs(staff_id, details):
+    query = "insert into logs set staff_id='%s', date= now(), details= '%s'"% (staff_id,details)
+    db.insert(connection, query)
