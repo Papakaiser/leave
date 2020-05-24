@@ -13,6 +13,13 @@
 <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://unpkg.com/js-datepicker"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.bootstrap4.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/js/buttons.jqueryui.js">
 
 
 <meta charset="UTF-8">
@@ -57,6 +64,12 @@
             var username = $(this).data('username');
             console.log('username is ', username)
             $.get('{{url_for('view', username='')}}'+username, {}, callback )
+        });
+
+        $('#myTable').on('click', '.delete_user',function(){
+            var id = $(this).data('id');
+            console.log('delete id is ', id)
+            $('input[name="id"]').val(id);
         });
     });
 
@@ -103,17 +116,23 @@
 
         </div>
         <div class="col-sm-10">
-            <div class="msg">{{ msg }}</div>
-            <h3 class="tip"></h3>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span></div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             <div class="row wor">
 
                 <div class="card">
                     <div class="card-header">
 
                             STAFF LIST
-                            <div align="right" class="float-right">
-                                <i class="fa fa-user-plus action " data-toggle="modal"
-                                   data-target="#addstaff"></i>
+                            <div class="float-right icon">
+                                <i class="fa fa-user-plus add" data-toggle="modal"
+                                   data-target="#addstaff"></i><span>Add New</span>
                             </div>
 
                     </div>
@@ -160,9 +179,9 @@
                                             <i class="fa fa-edit action edituser" data-username="{{i.staff_number}}"
                                                style="color:green;" data-toggle="modal"
                                                data-target="#update"></i>
-                                            <i class="fa fa-trash action" style="color:red;" data-toggle="modal"
+                                            <i class="fa fa-trash action delete_user" style="color:red;" data-toggle="modal"
                                                data-target="#delete" data-username="{{i.staff_number}}"
-                                               id="viewuser2"></i>
+                                               id="viewuser2" data-id="{{i.id}}"></i>
                                         </td>
 
 
@@ -547,6 +566,7 @@
             <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
                  aria-hidden="true">
                 <div class="modal-dialog" role="document">
+                    <form action="{{url_for('remove_user')}}" method="post">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="updateLabel2">Delete Staff Data</h5>
@@ -555,13 +575,15 @@
                             </button>
                         </div>
                         <div class="modal-body">
+                            <input type="hidden" name="id" value="">
                             Are you sure?
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </div>
                     </div>
+                    </form>
                 </div>
             </div>
 
@@ -627,7 +649,7 @@
 
                                                 <div class="form-group">
                                                     <label>Picture</label>
-                                                    <input id="file-input1" type="file" name="file-input">
+                                                    <input id="file-input1" type="file" name="file-input" class="form-control">
                                                 </div>
 
 
@@ -642,7 +664,7 @@
 
                                                 <div class="form-group">
                                                     <label>Department</label>
-                                                    <select name="department">
+                                                    <select name="department" class="form-control">
                                                         {% for i in dp %}
                                                         <option value="{{i.name}}">{{i.name }}</option>
                                                         {% endfor %}
@@ -652,7 +674,7 @@
 
                                                 <div class="form-group">
                                                     <label>Office</label>
-                                                    <select name="station">
+                                                    <select name="station" class="form-control">
                                                         {% for i in st %}
                                                         <option value="{{i.name}}">{{i.name }}</option>
                                                         {% endfor %}
@@ -662,7 +684,7 @@
 
                                                 <div class="form-group">
                                                     <label>Gender</label>
-                                                    <select name="gender2">
+                                                    <select name="gender2" class="form-control">
                                                         <option value="m">Male</option>
                                                         <option value="f">Female</option>
 
@@ -671,7 +693,7 @@
 
                                                 <div class="form-group">
                                                     <label>Account Type</label>
-                                                    <select name="isadmin2">
+                                                    <select name="isadmin2" class="form-control">
                                                         <option value="0">User</option>
                                                         <option value="1">Admin</option>
 
@@ -680,7 +702,7 @@
 
                                                 <div class="form-group">
                                                     <label>Role</label>
-                                                    <select name="role2">
+                                                    <select name="role2" class="form-control">
                                                         {% for i in rl %}
                                                         <option value="{{i.id}}">{{i.role_name }}</option>
                                                         {% endfor %}
@@ -691,7 +713,7 @@
 
                                                 <div class="form-group">
                                                     <label>Line Manager</label>
-                                                    <select name="line_manager2">
+                                                    <select name="line_manager2" class="form-control">
                                                         {% for i in lm %}
                                                         <option value="{{i.id}}">{{i.first_name }} {{i.middle_name }} {{i.last_name}}</option>
                                                         {% endfor %}
@@ -714,7 +736,7 @@
                                 </div>
 
 
-                                <div role="tabpanel" class="tab-pane" id="change-picture1">
+                                <div role="tabpanel" class="tab-pane" id="change-picture12">
                                     <form role="form" enctype="multipart/form-data">
 
                                         <div class="row">
@@ -754,9 +776,27 @@
         </div>
     </div>
 
+<script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
+
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href="{{ url_for('logout') }}";
+  }, delay);
+}
+</script>
 
     {% endblock %}
 
 </div>
+
+
 </body>
 

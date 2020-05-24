@@ -12,9 +12,18 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
 <script src="https://unpkg.com/js-datepicker"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.bootstrap4.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/js/buttons.jqueryui.js">
+
 <script>
+var disabledDates = [];
 $(document).ready(function() {
-var  disabledDates = [
+disabledDates = [
 {% for i in holiday %}
  {{'new Date('}} {{i.date.year}} {{','}} {{i.date.month-1}} {{','}} {{i.date.day}} {{')'}} {{','}}
 {% endfor %}
@@ -25,28 +34,48 @@ var pickerOptions = { id: 1 , noWeekends: true, disableYearOverlay: true,  forma
     const value = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
     input.value = value // => '1/1/2099'
  }, disabledDates:disabledDates}
-const start = datepicker('#startdate', pickerOptions )
-const end = datepicker('#endate', pickerOptions )
+const start = datepicker('#startdate', {...pickerOptions, onSelect: startDateSelected} )
+const end = datepicker('#endate', {...pickerOptions, onSelect: endDateSelected} )
 
 })
 
 
-</script>
 
+
+</script>
+<script src="{{ url_for('static', filename='js/all.js') }}"></script>
 
 <script>
 $(document).ready( function () {
-    $('#myTable').DataTable();
+    console.log('checking in id');
+    $('#myTable').DataTable({
+        dom:"lBfrtip",
+            buttons:['copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'],
+    });
 
     $('#myTable2').DataTable();
 
-    $('#myTable3').DataTable();
+    $('#myTable3').DataTable({
+        dom:"lBfrtip",
+            buttons:['copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'],
+    });
     $('#myTable4').DataTable({
+            dom:"lBfrtip",
+            buttons:['copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'],
      scrollX:true, scrollY:true
     });
 
-
-    $('#myTable2').on('click', '.leave_type',function () {
+    console.log('leave type id is needed');
+    $('.leave_type').click( function () {
         console.log("Leave type clicked");
          var id = $(this).data('id');
          var name = $(this).data('name');
@@ -63,7 +92,11 @@ $(document).ready( function () {
         $('#linemanagermodal').modal('show');
     }
 
+
+
 } );
+
+
 
 
 </script>
@@ -83,6 +116,8 @@ $(document).ready( function () {
     } );
     });
 
+
+
 </script>
 <meta charset="UTF-8">
 
@@ -101,29 +136,36 @@ $(document).ready( function () {
 
         <div class="col-sm-2" id="pix">
             <!--<div class="card" style="width:100%">-->
-                <!--<div class="dash">-->
-                    <!--<a class="nav-link pit" href="#">DASHBOARD</a>-->
-                <!--</div>-->
-                <!--<div class="nav-item dropdown">-->
-                    <!--<a class="nav-link dropdown-toggle pit1" href="#" id="navbardrop" data-toggle="dropdown">-->
-                        <!--APPLY FOR LEAVE-->
-                    <!--</a>-->
-                    <!--<div class="dropdown-menu" style="width:100%; padding:0px">-->
-                        <!--{% for i in leave_types %}-->
-                        <!--<div data-id="{{i.leave_id}}" data-name="{{i.name}}" class="dropdown-item side leave_type"-->
-                             <!--data-toggle="modal" data-target="#exampleModal">{{i.name}}-->
-                        <!--</div>-->
-                        <!--{% endfor %}-->
+            <!--<div class="dash">-->
+            <!--<a class="nav-link pit" href="#">DASHBOARD</a>-->
+            <!--</div>-->
+            <!--<div class="nav-item dropdown">-->
+            <!--<a class="nav-link dropdown-toggle pit1" href="#" id="navbardrop" data-toggle="dropdown">-->
+            <!--APPLY FOR LEAVE-->
+            <!--</a>-->
+            <!--<div class="dropdown-menu" style="width:100%; padding:0px">-->
+            <!--{% for i in leave_types %}-->
+            <!--<div data-id="{{i.leave_id}}" data-name="{{i.name}}" class="dropdown-item side leave_type"-->
+            <!--data-toggle="modal" data-target="#exampleModal">{{i.name}}-->
+            <!--</div>-->
+            <!--{% endfor %}-->
 
-                    <!--</div>-->
+            <!--</div>-->
 
 
-                <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
 
         </div>
         <div class="col-sm-10">
-            <div class="msg">{{ msg }}</div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span></div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             <b><h3>
                 <i class="fa fa-dashboard">DASHBOARD</i></h3></b>
             <div class="row wor">
@@ -236,6 +278,14 @@ $(document).ready( function () {
                     </div>
                     <div class="row form-group">
                         <div class="col-md-3">
+                            <label id="nofdays1" for="nofdays">No. of Days:</label>
+                        </div>
+                        <div>
+                            <input class="form-control" type="number" id="nofdays" name="nofdays">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-3">
                             <label for="endate">Comment:</label>
                         </div>
                         <div>
@@ -251,7 +301,7 @@ $(document).ready( function () {
 
 
             </form>
-    </div>
+        </div>
     </div>
 </div>
 
@@ -292,7 +342,7 @@ $(document).ready( function () {
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">done</button>
                 </div>
-</form>
+            </form>
         </div>
 
     </div>
@@ -410,7 +460,7 @@ $(document).ready( function () {
                                 {% if data.role == 3 %}
                                 <td>{{i.station}}</td>
                                 <td>{{i.department}}</td>
-                                 {% endif %}
+                                {% endif %}
 
 
                                 <!--<div class="card">-->
@@ -454,30 +504,30 @@ $(document).ready( function () {
                 <div class="modal-body">
 
                     <div class="form-group">
-                                    <label>Current Password</label>
-                                    <input type="password" class="form-control" required="" name="current_password">
-                                </div>
+                        <label>Current Password</label>
+                        <input type="password" class="form-control" required="" name="current_password">
+                    </div>
                     <div class="form-group">
-                                    <label>New Password</label>
-                                    <input type="password" class="form-control" required="" name="new_password">
-                                </div>
+                        <label>New Password</label>
+                        <input type="password" class="form-control" required="" name="new_password">
+                    </div>
                     <div class="form-group">
-                                    <label>Confirm Password</label>
-                                    <input type="password" class="form-control" required="" name="confirm_password">
-                                </div>
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" required="" name="confirm_password">
+                    </div>
 
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Update</button>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </div>
+
                 </div>
-
+            </form>
         </div>
-        </form>
     </div>
 </div>
-</div>
 
-    <!-- remaining leave Modals -->
+<!-- remaining leave Modals -->
 <div class="modal fade " id="remaining_leave_days" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -507,8 +557,8 @@ $(document).ready( function () {
 
                             {% for i in all_info %}
                             <tr>
-                                {%  for j in i %}
-                                    <td>{{j}}</td>
+                                {% for j in i %}
+                                <td>{{j}}</td>
                                 {% endfor %}
                             </tr>
                             {% endfor %}
@@ -524,9 +574,28 @@ $(document).ready( function () {
         <!--</form>-->
     </div>
 </div>
+
+
+
+<script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
+
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href='/logout';
+  }, delay);
+}
+
+
+</script>
+
 {% endblock %}
-
-
-
 </body>
 

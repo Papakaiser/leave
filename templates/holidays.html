@@ -50,6 +50,9 @@
 
 
 
+
+
+
 </script>
 
 <title>Holidays</title>
@@ -87,23 +90,33 @@
             <!--</div>-->
 
         </div>
-        <div class="col-xl-10"><h3 class="tip"></h3>
+        <div class="col-sm-10">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
             <div class="row wor">
 
-                <div class="card col-xl-10">
+                <div class="card" style="width:100%">
                     <div class="card-header ">
 
                         HOLIDAYS
-                        <div align="right" class="float-right">
-                            <li class="fa fa-user-plus action add" data-toggle="modal"
-                                data-target="#addholiday"></li>
+                        <div class="float-right icon">
+                            <i class="fa fa-user-plus add" data-toggle="modal" data-target="#addholiday"></i>
+                            <span>Add New</span>
+
                         </div>
 
                     </div>
                     <div class="card-body">
                         <div class="row">
 
-                            <div class="col-xl-12 ">
+                            <div class="col-md-12">
                                 <table class="table-striped tab table-bordered" id="myTable" width="100%">
                                     <thead>
                                     <tr>
@@ -144,224 +157,237 @@
             </div>
 
 
+            <!--modal-->
+
+            <!--update modal-->
+
+            <div class="modal fade" id="holiday_update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-sl" role="document">
+                    <form role="form" enctype='multipart/form-data' action="{{url_for('updateholiday')}}" method="post">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateLabel">Update Staff Data</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="tab-content panel p-20">
+
+
+                                    <div role="tabpanel" class="tab-pane active" id="personal_details">
+
+                                        <input type="hidden" name="id"
+                                               value="">
+                                        <div class="row">
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Name</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="holiday_name" value="">
+                                                </div>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Date</label>
+                                                    <input type="date" class="form-control" name="holiday_date"
+                                                           value="">
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <input type="hidden" value="26" name="cmd">
+                                                <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <div role="tabpanel" class="tab-pane" id="change-picture1">
+                                        <form role="form" enctype="multipart/form-data">
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                        <input type="text" class="form-control" readonly="">
+                                                    </div>
+
+                                                    <input type="hidden" name="_token"
+                                                           value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                    <input type="submit" value="Update" class="btn btn-primary">
+
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!--staff delete modal-->
+            <div class="modal fade" id="delete_holiday" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <form action="{{url_for('remove_holiday')}}" method="post">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateLabel2">Remove Holiday</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="id" value="">
+                                Are you sure?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!--add holiday-->
+            <div class="modal fade" id="addholiday" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-sl" role="document">
+                    <form role="form" enctype='multipart/form-data' action="{{url_for('new_holiday')}}" method="post">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateLabel4">Add Holiday</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="tab-content panel p-20">
+
+
+                                    <div role="tabpanel" class="tab-pane active" id="personal_details4">
+
+                                        <input type="hidden" name="id"
+                                               value="">
+                                        <div class="row">
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Name</label>
+                                                    <input type="text" class="form-control" required=""
+                                                           name="holiday_name" value="">
+                                                </div>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label>Date</label>
+                                                    <input type="date" class="form-control" name="holiday_date"
+                                                           value="">
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <input type="hidden" value="26" name="cmd">
+                                                <!--<input type="submit" value="Update" class="btn btn-primary">-->
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <div role="tabpanel" class="tab-pane" id="change-picture11">
+                                        <form role="form" enctype="multipart/form-data">
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group input-group input-group-file">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-primary btn-file">
+                                                        Browse <input type="file" class="form-control" name="image"
+                                                                      accept="image/*">
+                                                    </span>
+                                                </span>
+                                                        <input type="text" class="form-control" readonly="">
+                                                    </div>
+
+                                                    <input type="hidden" name="_token"
+                                                           value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
+                                                    <input type="submit" value="Update" class="btn btn-primary">
+
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
-        </form>
     </div>
-</div>
-</div>
 
-<!--modal-->
+    <script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
 
-<!--update modal-->
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href="{{ url_for('logout') }}";
+  }, delay);
+}
+</script>
 
-<div class="modal fade" id="holiday_update" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-sl" role="document">
-        <form role="form" enctype='multipart/form-data' action="{{url_for('updateholiday')}}" method="post">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateLabel">Update Staff Data</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="tab-content panel p-20">
-
-
-                        <div role="tabpanel" class="tab-pane active" id="personal_details">
-
-                            <input type="hidden" name="id"
-                                   value="">
-                            <div class="row">
-                                <div class="col-md-6">
-
-                                    <div class="form-group">
-                                        <label>Name</label>
-                                        <input type="text" class="form-control" required=""
-                                               name="holiday_name" value="">
-                                    </div>
-
-
-                                </div>
-                                <div class="col-md-6">
-
-                                    <div class="form-group">
-                                        <label>Date</label>
-                                        <input type="date" class="form-control" name="holiday_date"
-                                               value="">
-                                    </div>
-
-
-                                </div>
-
-                                <div class="col-md-12">
-                                    <input type="hidden" value="26" name="cmd">
-                                    <!--<input type="submit" value="Update" class="btn btn-primary">-->
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
-                        <div role="tabpanel" class="tab-pane" id="change-picture1">
-                            <form role="form" enctype="multipart/form-data">
-
-                                <div class="row">
-                                    <div class="col-md-4">
-
-                                        <div class="form-group input-group input-group-file">
-                                                <span class="input-group-btn">
-                                                    <span class="btn btn-primary btn-file">
-                                                        Browse <input type="file" class="form-control" name="image"
-                                                                      accept="image/*">
-                                                    </span>
-                                                </span>
-                                            <input type="text" class="form-control" readonly="">
-                                        </div>
-
-                                        <input type="hidden" name="_token"
-                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
-                                        <input type="submit" value="Update" class="btn btn-primary">
-
-                                    </div>
-
-                                </div>
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!--staff delete modal-->
-<div class="modal fade" id="delete_holiday" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <form action="{{url_for('remove_holiday')}}" method="post">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateLabel2">Remove Holiday</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="id" value="">
-                    Are you sure?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!--add holiday-->
-<div class="modal fade" id="addholiday" tabindex="-1" role="dialog" aria-labelledby="updateLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-sl" role="document">
-        <form role="form" enctype='multipart/form-data' action="{{url_for('new_holiday')}}" method="post">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateLabel4">Add Holiday</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="tab-content panel p-20">
-
-
-                        <div role="tabpanel" class="tab-pane active" id="personal_details4">
-
-                            <input type="hidden" name="id"
-                                   value="">
-                            <div class="row">
-                                <div class="col-md-6">
-
-                                    <div class="form-group">
-                                        <label>Name</label>
-                                        <input type="text" class="form-control" required=""
-                                               name="holiday_name" value="">
-                                    </div>
-
-
-                                </div>
-                                <div class="col-md-6">
-
-                                    <div class="form-group">
-                                        <label>Date</label>
-                                        <input type="date" class="form-control" name="holiday_date"
-                                               value="">
-                                    </div>
-
-
-                                </div>
-
-                                <div class="col-md-12">
-                                    <input type="hidden" value="26" name="cmd">
-                                    <!--<input type="submit" value="Update" class="btn btn-primary">-->
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
-                        <div role="tabpanel" class="tab-pane" id="change-picture11">
-                            <form role="form" enctype="multipart/form-data">
-
-                                <div class="row">
-                                    <div class="col-md-4">
-
-                                        <div class="form-group input-group input-group-file">
-                                                <span class="input-group-btn">
-                                                    <span class="btn btn-primary btn-file">
-                                                        Browse <input type="file" class="form-control" name="image"
-                                                                      accept="image/*">
-                                                    </span>
-                                                </span>
-                                            <input type="text" class="form-control" readonly="">
-                                        </div>
-
-                                        <input type="hidden" name="_token"
-                                               value="qCwaf0iPE87e5ABrhl8mZq9tuSCa5tTEGy0i69Fk">
-                                        <input type="submit" value="Update" class="btn btn-primary">
-
-                                    </div>
-
-                                </div>
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+    {% endblock %}
 
 </div>
-</div>
 
 
-{% endblock %}
 
-</div>
 </body>
 

@@ -104,8 +104,15 @@
 
 
         </div>
-        <div class="col-sm-11"><h3 class="tip"></h3>
-            <div class="msg">{{ msg }}</div>
+        <div class="col-sm-11">
+           {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span></div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             <div class="row wor">
 
                 <div class="col-sm-4">
@@ -113,9 +120,9 @@
                         <div class="card-header ">
 
                                 Department
-                                <div align="right" class="float-right">
-                                    <li class="fa fa-user-plus action add" data-toggle="modal"
-                                        data-target="#adddepartment"></li>
+                                <div class="float-right icon">
+                                    <li class="fa fa-user-plus  add" data-toggle="modal"
+                                        data-target="#adddepartment"></li><span>Add New</span>
                                 </div>
 
                         </div>
@@ -165,9 +172,9 @@
                         <div class="card-header ">
 
                                Role
-                                <div align="right" class="float-right">
-                                    <li class="fa fa-user-plus action add" data-toggle="modal"
-                                        data-target="#addrole"></li>
+                                <div class="float-right icon">
+                                    <li class="fa fa-user-plus  add" data-toggle="modal"
+                                        data-target="#addrole"></li><span>Add New</span>
                                 </div>
 
                         </div>
@@ -217,9 +224,9 @@
                         <div class="card-header ">
 
                                 Office
-                                <div align="right" class="float-right">
-                                    <li class="fa fa-user-plus action add" data-toggle="modal"
-                                        data-target="#addoffice"></li>
+                                <div class="float-right icon">
+                                    <li class="fa fa-user-plus  add" data-toggle="modal"
+                                        data-target="#addoffice"></li><span>Add New</span>
                                 </div>
 
                         </div>
@@ -690,9 +697,28 @@
 </div>
 </div>
 
+<script>
+$(window).bind('mousemove click mouseup mousedown keydown keypress keyup submit change mouseenter scroll resize dblclick', someEvent);
+var active = true,
+  delay = 180000,
+  timer = null;
+
+function someEvent(e)
+{
+  active = true;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function(t){
+    //active = false;
+    window.location.href="{{ url_for('logout') }}";
+  }, delay);
+}
+</script>
 
 {% endblock %}
 
 </div>
+
+
+
 </body>
 

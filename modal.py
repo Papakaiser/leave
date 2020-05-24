@@ -5,7 +5,7 @@ connection = None
 
 
 def find_all(username):
-    query = "select p1.*,concat(p2.first_name ,' ',p2.middle_name , ' ', p2.last_name ) line_manager_name,p2.email line_manager_email from personal_data p1 left join personal_data p2 on p1.line_manager = p2.id where p1.staff_number = '" + str(username) + "'"
+    query = "select p1.*,concat(p2.first_name ,' ',p2.middle_name , ' ', p2.last_name ) line_manager_name,p1.role, p2.email line_manager_email from personal_data p1 left join personal_data p2 on p1.line_manager = p2.id where p1.staff_number = '" + str(username) + "'"
     return db.get_one(connection, query)
 
 
@@ -50,8 +50,8 @@ def pending( line_manager_id):
     return db.get_many(connection, query)
 
 
-def approved_pending_leave(staff_id, leave_type_id):
-    query ="select * from approved_pending_leave_view  where Staff_id = '%s' and leave_id = %s"% (staff_id, leave_type_id )
+def approved_pending_leave(staff_id, leave_type_id,role):
+    query ="select * from approved_pending_leave_view  where level='%s' and Staff_id = '%s' and leave_id = %s"% (role, staff_id, leave_type_id )
     return db.get_one(connection,query)
 
 
@@ -67,8 +67,8 @@ def get_leave_types(gender, level):
     return db.get_many(connection, query)
 
 
-def get_leave_total_duration(leave_type_id):
-    query = "select duration from leave_days_types  where leave_id = '" + str(leave_type_id) + "'"
+def get_leave_total_duration(leave_type_id, level):
+    query = "select duration from leave_days_types  where leave_id = '" + str(leave_type_id) + "' and level='" + str(level) + "'"
     return db.get_one(connection, query)
 
 
@@ -139,6 +139,15 @@ def update_leave_types(id):
 
 def remove_holiday(id):
     query = "delete from holidays where id=%s"% id
+    return db.get_one(connection, query)
+
+
+def remove_user(id):
+    query = "delete from personal_data where id=%s"% id
+    return db.get_one(connection, query)
+
+def remove_userlogin(staff_id):
+    query = "delete from login_info where staff_id=%s"% staff_id
     return db.get_one(connection, query)
 
 
@@ -219,6 +228,10 @@ def staff_all():
     query = "select * from personal_data"
     return db.get_many(connection,query)
 
+def get_staff(id):
+    query = "select staff_number from personal_data where id='%s'"% id
+    return db.get_one(connection,query)
+
 
 def new_login(staff_id, password, email):
     query = "insert into login_info  (staff_id, password, email) values ('%s','%s','%s')"%  (staff_id,password.decode('ascii'),email)
@@ -240,3 +253,7 @@ def all_leave_types():
 def get_drs(lm):
     query = " select * from personal_data where line_manager = %s" % lm
     return db.get_many(connection, query)
+
+def logs(staff_id, details):
+    query = "insert into logs set staff_id='%s', date= now(), details= '%s'"% (staff_id,details)
+    db.insert(connection, query)

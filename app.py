@@ -60,11 +60,14 @@ def login():
             session['id'] = account[0]
             session['username'] = account[1]
             # Redirect to home page
-            print('Logged in successfully!')
+            msg = 'Logged in successfully!'
+            flash('Logged in successfully!', 'success')
+            modal.logs(session['username'],msg)
             return redirect('/dashboard')
         else:
             # Account doesnt exist or username/password incorrect
             msg = 'Incorrect username/password!'
+            modal.logs(session['username'], msg)
     # Show the login form with message (if any)
     return render_template('index.html', msg=msg)
 
@@ -72,12 +75,17 @@ def login():
 @app.route('/logout')
 def logout():
     # Remove session data, this will log the user out
-    session.pop('loggedin', None)
-    session.pop('id', None)
-    session.pop('username', None)
-    # Redirect to login page
-    return redirect(url_for('login'))
-
+    try:
+        username = session['username']
+        session.pop('loggedin', None)
+        session.pop('id', None)
+        session.pop('username', None)
+        # Redirect to login page
+        msg = 'logged out'
+        modal.logs(username, msg)
+        return redirect(url_for('login'))
+    except Exception as e:
+        return render_template("index.html")
 
 # http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
 @app.route('/home')
@@ -92,76 +100,78 @@ def home():
 
 @app.route('/dashboard')
 def dashboard():
-    username = session['username']
-    print('username is',username)
+    try:
+        username = session['username']
+        print('username is',username)
 
-    holiday = modal.get_holidays()
-    print("all hoildays", holiday)
+        holiday = modal.get_holidays()
+        print("all hoildays", holiday)
 
-    data = modal.find_all(username)
-    print('data needed is', data)
+        data = modal.find_all(username)
+        print('data needed is', data)
 
-    line_manager_id = data['id']
-    print(line_manager_id)
+        line_manager_id = data['id']
+        print(line_manager_id)
 
-    leave_data = modal.approved_pending_info(username, data['role'])
-    leave_types = modal.get_leave_types(data['gender'], data['role'])
-    print('leave types: ', leave_types)
+        leave_data = modal.approved_pending_info(username, data['role'])
+        leave_types = modal.get_leave_types(data['gender'], data['role'])
+        print('leave types: ', leave_types)
 
-    print('this is it', leave_data)
+        print('this is it', leave_data)
 
-    # days_left = modal.carried_froward_days(username)
-    # print(days_left)
-    history = modal.leave_history(username)
-    for i in leave_types:
-        found = False
-        for j in leave_data:
-            if i['leave_id'] == j['leave_id']:
-                found = True
-                break
-        if not found:
-            leave_data.append({'total': 0, 'Staff_id': username, 'leave_id': i['leave_id'], 'duration': i['duration'], 'name': i['name']})
-    print('leave data is now : ', leave_data)
+        # days_left = modal.carried_froward_days(username)
+        # print(days_left)
+        history = modal.leave_history(username)
+        for i in leave_types:
+            found = False
+            for j in leave_data:
+                if i['leave_id'] == j['leave_id']:
+                    found = True
+                    break
+            if not found:
+                leave_data.append({'total': 0, 'Staff_id': username, 'leave_id': i['leave_id'], 'duration': i['duration'], 'name': i['name']})
+        print('leave data is now : ', leave_data)
 
-    print(history)
+        print(history)
 
-    pending =modal.pending(line_manager_id)
-    approved = []
+        pending =modal.pending(line_manager_id)
+        approved = []
 
-    if data['role'] == 2:
-        approved = modal.line_manager_approved(line_manager_id)
-    elif data['role'] ==3:
-        approved = modal.all_approved()
+        if data['role'] == 2:
+            approved = modal.line_manager_approved(line_manager_id)
+        elif data['role'] ==3:
+            approved = modal.all_approved()
 
-    id=data['id']
-    leave_data2 = modal.remaining(id)
-    leave_types2 = modal.all_leave_types()
-    all_leaves = modal.all_leave()
+        id=data['id']
+        leave_data2 = modal.remaining(id)
+        leave_types2 = modal.all_leave_types()
+        all_leaves = modal.all_leave()
 
-    all_info = []
-    headers = ['Name']
-    for j in leave_types2:
-        headers.append(j['name'] + " total")
-        headers.append(j['name'] + " used")
-    drs = modal.get_drs(id)
-
-    for i in drs:
-        one_info = [i['first_name']  + " " + i['middle_name'] + " " + i['last_name']]
+        all_info = []
+        headers = ['Name']
         for j in leave_types2:
-            # one_info[j['name'] + ' total'] = get_leave_total(leave_data2, j['id'], i['staff_number'], 'duration')
-            print (i['gender'], j['gender'])
-            one_info.append(get_leave_duration(all_leaves, i['role'], j['id'], i['gender']))
-            one_info.append(get_leave_total(leave_data2, j['id'], i['staff_number'], 'total'))
-        all_info.append(one_info)
+            headers.append(j['name'] + " total")
+            headers.append(j['name'] + " used")
+        drs = modal.get_drs(id)
+
+        for i in drs:
+            one_info = [i['first_name']  + " " + i['middle_name'] + " " + i['last_name']]
+            for j in leave_types2:
+                # one_info[j['name'] + ' total'] = get_leave_total(leave_data2, j['id'], i['staff_number'], 'duration')
+                print (i['gender'], j['gender'])
+                one_info.append(get_leave_duration(all_leaves, i['role'], j['id'], i['gender']))
+                one_info.append(get_leave_total(leave_data2, j['id'], i['staff_number'], 'total'))
+            all_info.append(one_info)
 
 
-    return render_template('leave.html', leave_types=leave_types, data=data, username=username, leave_data=leave_data, history=history, pending=pending, pending_count=len(pending), approved=approved, holiday=holiday, all_info=all_info, headers=headers)
-
+        return render_template('leave.html', leave_types=leave_types, data=data, username=username, leave_data=leave_data, history=history, pending=pending, pending_count=len(pending), approved=approved, holiday=holiday, all_info=all_info, headers=headers)
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 def get_leave_duration(data, role, leave_id, gender):
     duration = 0
     for i in  data:
-        print('searching ', i, 'for', role, leave_id)
+        # print('searching ', i, 'for', role, leave_id)
         if str(i['level']) == str(role) and str(i['leave_id']) == str(leave_id) and gender in str(i['gender']):
             duration = i['duration']
             break
@@ -265,9 +275,6 @@ def get_dr_names():
     return json_dr
 
 
-
-
-
 @app.route('/annual')
 def annual():
     return redirect('leave1.html')
@@ -281,86 +288,98 @@ def admin():
 
 @app.route('/request_leave', methods=['POST'])
 def request_leave():
+    try:
 
-    username = session['username']
+        username = session['username']
 
-    start = request.form['startdate']
+        start = request.form['startdate']
 
-    end = request.form['endate']
-    leave_type_id = request.form['leave_type_id']
-    comment = request.form['Comment']
+        end = request.form['endate']
+        leave_type_id = request.form['leave_type_id']
+        comment = request.form['Comment']
 
-    data1 = modal.find_all(username)
-    print('data1 is', data1)
+        data1 = modal.find_all(username)
+        print('data1 is', data1)
 
 
-    print(data1['level'])
-    print(data1['gender'])
-    print(leave_type_id)
+        print(data1['level'])
+        print(data1['gender'])
+        print('role is ',data1['role'])
+        print(leave_type_id)
 
-    data3 = modal.approved_pending_leave(username,leave_type_id)
-    print(data3)
-    line_m = data1['line_manager']
-    s_id = data1['staff_number']
+        data3 = modal.approved_pending_leave(username,leave_type_id,data1['role'])
+        print(data3)
+        line_m = data1['line_manager']
+        s_id = data1['staff_number']
 
-    if data3:
-        datar = int(data3['duration']) - int(data3['total'])
-    else:
-        #user has not applied for for any leave of this type so he has all the days left. Get the total days
-        total_duration = modal.get_leave_total_duration(leave_type_id)
-        datar = total_duration['duration']
-        print('fetched total duration from another src', datar)
-    start1 = datetime.datetime.strptime(start, '%Y-%m-%d')
-    ends1 = datetime.datetime.strptime(end, '%Y-%m-%d')
+        if data3:
+            datar = int(data3['duration']) - int(data3['total'])
+        else:
+            #user has not applied for for any leave of this type so he has all the days left. Get the total days
+            total_duration = modal.get_leave_total_duration(leave_type_id,data1['role'])
+            datar = total_duration['duration']
+            print('fetched total duration from another src', datar)
+        start1 = datetime.datetime.strptime(start, '%Y-%m-%d')
+        ends1 = datetime.datetime.strptime(end, '%Y-%m-%d')
 
-    holidays = modal.get_leave_holidays(start1, ends1)
-    holiday_count = len(holidays)
+        holidays = modal.get_leave_holidays(start1, ends1)
+        holiday_count = len(holidays)
 
-    weekdays = util.workdays(start1,ends1)
-    requested_leave_days = len(weekdays) - holiday_count
-    # print(data2)
-    print('this is requested_leave_days', requested_leave_days)
-    print('this is datar', datar)
+        weekdays = util.workdays(start1,ends1)
+        requested_leave_days = len(weekdays) - holiday_count
+        # print(data2)
+        print('this is requested_leave_days', requested_leave_days)
+        print('this is datar', datar)
 
-    if requested_leave_days <= datar:
-        connection = app.config['pool'].get_connection()
-        cursor = connection.cursor(dictionary=True)
-        query = "insert into history (start_date ,end_date ,comment ,leave_type_id, requested_date , status, line_manager, staff_id, requested_leave_days) values ('%s','%s','%s','%s' ,now(),'pending','%s','%s', '%s')"% (start, end,comment, leave_type_id, line_m, s_id, requested_leave_days)
+        if requested_leave_days <= datar:
+            connection = app.config['pool'].get_connection()
+            cursor = connection.cursor(dictionary=True)
+            query = "insert into history (start_date ,end_date ,comment ,leave_type_id, requested_date , status, line_manager, staff_id, requested_leave_days) values ('%s','%s','%s','%s' ,now(),'pending','%s','%s', '%s')"% (start, end,comment, leave_type_id, line_m, s_id, requested_leave_days)
 
-        cursor.execute(query)
-        cursor.close()
-        connection.close()
-        subject = "Leave Request"
-        message = "hello %s, %s has applied for %s leave days. regards, leave planner"%(data1['line_manager_name'],data1['last_name'],requested_leave_days)
-        mail.send_mail([data1['line_manager_email']], message, subject, [data1['email']])
-        flash("LEAVE APPLICATION SUCCESSFUL")
-        return redirect('/dashboard')
-    else:
-        flash("SORRY! YOU DO NOT HAVE THAT NUMBER OF DAYS REMAINING")
-        return redirect('/dashboard')
-
+            cursor.execute(query)
+            cursor.close()
+            connection.close()
+            subject = "Leave Request"
+            message = "hello %s, %s has applied for %s leave days. regards, leave planner"%(data1['line_manager_name'],data1['last_name'],requested_leave_days)
+            mail.send_mail([data1['line_manager_email']], message, subject, [data1['email']])
+            msg = "Successfully applied for a leave"
+            modal.logs(session['username'], msg)
+            flash("LEAVE APPLICATION SUCCESSFUL", 'success')
+            return redirect('/dashboard')
+        else:
+            msg = "Leave application unsuccessful"
+            modal.logs(session['username'], msg)
+            flash("SORRY! YOU DO NOT HAVE THAT NUMBER OF DAYS REMAINING", 'error')
+            return redirect('/dashboard')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/approve_reject', methods = ['POST'])
 def approve_reject():
-    print("this is approve reject")
-    id = request.form['id']
-    status = request.form['status']
-    comment = request.form['comment']
-    result = modal.approve_reject(status,id, comment)
-    email = result['email']
-    line_manager_email = result['line_manager_email']
-    subject = "Leave %s" % status
-    if result['Status'] == 'approved':
-        message = "hello, %s, your leave request with start date as ,%s, and end date as , %s has been approved by your line manager with the reason as %s " % (result['last_name'], result['start_date'],result['end_date'], comment)
+    try:
+        print("this is approve reject")
+        id = request.form['id']
+        status = request.form['status']
+        comment = request.form['comment']
+        result = modal.approve_reject(status,id, comment)
+        email = result['email']
+        line_manager_email = result['line_manager_email']
+        subject = "Leave %s" % status
+        if result['Status'] == 'approved':
+            message = "hello, %s, your leave request with start date as ,%s, and end date as , %s has been approved by your line manager with the reason as %s " % (result['last_name'], result['start_date'],result['end_date'], comment)
+            msg = "Approved a leave request"
+            modal.logs(session['username'], msg)
+        else:
+            msg ="Leave request rejected"
+            modal.logs(session['username'], msg)
+            message = "hello, %s, your leave request with start date as ,%s, and end date as , %s has been rejected by your line manager with the reason as %s " % (result['last_name'], result['start_date'],result['end_date'], comment)
+        mail.send_mail([email], message, subject,[line_manager_email])
 
-    else:
-        message = "hello, %s, your leave request with start date as ,%s, and end date as , %s has been rejected by your line manager with the reason as %s " % (result['last_name'], result['start_date'],result['end_date'], comment)
-    mail.send_mail([email], message, subject,[line_manager_email])
 
-
-    return redirect('/dashboard#linemanagermodal')
-
+        return redirect('/dashboard#linemanagermodal')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/endofyear')
 def endofyear():
@@ -375,41 +394,52 @@ def home1():
 
 @app.route('/changepassword', methods=['POST'])
 def changepassword():
-    c_password = request.form['current_password']
-    n_password = request.form['new_password']
-    cf_password = request.form['confirm_password']
-    username = session['username']
-    p_word = modal.get_password(username)
-    print (p_word)
-    message= ""
-    if bcrypt.check_password_hash(p_word['Password'], c_password):
-        if n_password == cf_password:
-            pw_hash = bcrypt.generate_password_hash(cf_password)
-            query = modal.new_password(pw_hash,username)
-            print(query)
-            message = "Password changed successfully"
+    try:
+        c_password = request.form['current_password']
+        n_password = request.form['new_password']
+        cf_password = request.form['confirm_password']
+        username = session['username']
+        p_word = modal.get_password(username)
+        print (p_word)
+        message= ""
+        if bcrypt.check_password_hash(p_word['Password'], c_password):
+            if n_password == cf_password:
+                pw_hash = bcrypt.generate_password_hash(cf_password)
+                query = modal.new_password(pw_hash,username)
+                print(query)
+                message = "Password changed successfully"
+                modal.logs(session['username'], message)
+                flash('Password changed successfully', 'success')
+            else:
+                message = "New password and confirmed passwords do not match"
+                modal.logs(session['username'], message)
+                flash('New password and confirmed passwords do not match', 'error')
         else:
-            message = "New password and confirmed passwords do not match"
-    else:
-        message = "Password incorrect"
-    return redirect('/dashboard')
-
+            message = "Password incorrect"
+            modal.logs(session['username'], message)
+            flash('Incorrect password', 'error')
+        return redirect('/dashboard')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/resetpassword', methods=['POST'])
 def resetpassword():
-    staff_id = request.form['pass_reset']
-    pwd = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for i in range(8))
-    pw_hash = bcrypt.generate_password_hash(pwd)
-    modal.new_password(pw_hash, staff_id)
-    # //todo send mail with ***pwd*** as the new password
-    email = modal.get_personal_email(staff_id)
-    print('email is', email)
-    subject = 'Password Reset'
-    message = "Your password has been reset. Your new password is '%s'" % pwd
-    mail.send_mail([email['email']], message, subject,None)
-
-    return redirect('admleave')
-
+    try:
+        staff_id = request.form['pass_reset']
+        pwd = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for i in range(8))
+        pw_hash = bcrypt.generate_password_hash(pwd)
+        modal.new_password(pw_hash, staff_id)
+        # //todo send mail with ***pwd*** as the new password
+        email = modal.get_personal_email(staff_id)
+        print('email is', email)
+        subject = 'Password Reset'
+        message = "Your password has been reset. Your new password is '%s'" % pwd
+        mail.send_mail([email['email']], message, subject,None)
+        msg = "Password reset for" + staff_id
+        modal.logs(session['username'], msg)
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/staff_info')
 def staff_info():
@@ -461,59 +491,78 @@ def admdash():
 
 @app.route('/updateleavetype', methods=['POST'])
 def updateleavetype():
-    name = request.form['leave_name']
-    gender = request.form['gender']
-    id = request.form['id']
-    query ="update leave_types set name='%s', gender='%s' where id='%s'"% (name,gender,id)
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('update is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('admleave')
-
+    try:
+        name = request.form['leave_name']
+        gender = request.form['gender']
+        id = request.form['id']
+        query ="update leave_types set name='%s', gender='%s' where id='%s'"% (name,gender,id)
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('update is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "successful leave type update" + name + gender + id
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/remove_leave', methods=['POST'])
 def remove_leave():
-    print('id is', request.form)
-    nid = request.form['id']
-    query = modal.remove_leave(nid)
+    try:
+        print('id is', request.form)
+        nid = request.form['id']
+        query = modal.remove_leave(nid)
 
-    print('deleted is ', query)
-
-    return redirect('admleave')
-
+        print('deleted is ', query)
+        msg = "Leave successfully deleted"
+        modal.logs(session['username'], msg)
+        flash('Delete Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/update_role_leave_days', methods=['POST'])
 def update_role_leave_days():
-    role = request.form['role']
-    duration = request.form['duration']
-    carryf = request.form['carryf']
-    carryd = request.form['carryd']
-    id = request.form['id']
-    query = "update role_leave_days set role_id='%s', duration='%s', carry_forward='%s', days_carry_forward='%s' where id='%s'" % (role,duration, carryf, carryd, id )
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('leave_type is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('admleave')
+    try:
+        role = request.form['role']
+        duration = request.form['duration']
+        carryf = request.form['carryf']
+        carryd = request.form['carryd']
+        id = request.form['id']
+        query = "update role_leave_days set role_id='%s', duration='%s', carry_forward='%s', days_carry_forward='%s' where id='%s'" % (role,duration, carryf, carryd, id )
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('leave_type is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/remove_role_leave_days', methods=['POST'])
 def remove_role_leave_days():
-    print('id is', request.form)
-    nid = request.form['id']
-    query = modal.remove_role_leave_days(nid)
+    try:
+        print('id is', request.form)
+        nid = request.form['id']
+        query = modal.remove_role_leave_days(nid)
 
-    print('deleted is ', query)
-
-    return redirect('admleave')
-
+        print('deleted is ', query)
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        flash('Deletion Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/view/<username>')
 def view(username):
@@ -598,170 +647,226 @@ def allowed_file(filename):
 
 @app.route('/update_department', methods=['POST'])
 def update_departments():
-    name = request.form['department_name']
-    id = request.form['id']
-    query = "update departments set name='%s' where id='%s'"% (name,id)
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('update_department is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        name = request.form['department_name']
+        id = request.form['id']
+        query = "update departments set name='%s' where id='%s'"% (name,id)
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('update_department is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/update_roles', methods=['POST'])
 def update_roles():
-    name = request.form['role_name']
-    id = request.form['id']
-    query = "update role set role_name='%s' where id='%s'"% (name,id)
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('update_role is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        name = request.form['role_name']
+        id = request.form['id']
+        query = "update role set role_name='%s' where id='%s'"% (name,id)
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('update_role is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/update_station', methods=['POST'])
 def update_station():
-    name = request.form['station_name']
-    id = request.form['id']
-    query = "update station set name='%s' where id='%s'"% (name,id)
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('update_role is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        name = request.form['station_name']
+        id = request.form['id']
+        query = "update station set name='%s' where id='%s'"% (name,id)
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('update_role is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/updateuser', methods=['POST'])
 def updateuser():
-    print('updating user')
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    n_first = request.form['first_name']
-    n_middle = request.form['middle_name']
-    n_last = request.form['last_name']
-    n_gender = request.form['gender2']
-    n_email = request.form['email']
-    n_phone = request.form['phone']
-    n_department = request.form['department']
-    n_isadmin = request.form['isadmin2']
-    n_line_manager = request.form['line_manager2']
-    n_station = request.form['station']
-    n_position = request.form['position']
-    n_staffn = request.form['staff_number']
-    n_role = request.form['role2']
-    n_id = request.form['id']
+    try:
+        print('updating user')
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        n_first = request.form['first_name']
+        n_middle = request.form['middle_name']
+        n_last = request.form['last_name']
+        n_gender = request.form['gender2']
+        n_email = request.form['email']
+        n_phone = request.form['phone']
+        n_department = request.form['department']
+        n_isadmin = request.form['isadmin2']
+        n_line_manager = request.form['line_manager2']
+        n_station = request.form['station']
+        n_position = request.form['position']
+        n_staffn = request.form['staff_number']
+        n_role = request.form['role2']
+        n_id = request.form['id']
 
-    # if 'file' not in request.files:
-    #     flash('No file part')
-    #     return redirect(request.url)
+        # if 'file' not in request.files:
+        #     flash('No file part')
+        #     return redirect(request.url)
 
-    # if file.filename == '':
-    #     flash('No file selected for uploading')
-    #     return redirect(request.url)
-    query = "update personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', position='%s', staff_number='%s', role='%s' where id ='%s' " % (
-    n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station, n_position,
-    n_staffn, n_role, n_id)
+        # if file.filename == '':
+        #     flash('No file selected for uploading')
+        #     return redirect(request.url)
+        query = "update personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', position='%s', staff_number='%s', role='%s' where id ='%s' " % (
+        n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station, n_position,
+        n_staffn, n_role, n_id)
 
-    if 'file-input' in request.files and request.files['file-input'].filename != '':
-        file = request.files['file-input']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            flash('File successfully uploaded')
-            n_pix = filename
-            query = "update personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', role='%s', staff_number='%s', profile_pix='%s'  where id ='%s' " % (
-            n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station,
-            n_role, n_staffn, n_pix, n_id)
+        if 'file-input' in request.files and request.files['file-input'].filename != '':
+            file = request.files['file-input']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                flash('File successfully uploaded')
+                n_pix = filename
+                query = "update personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', role='%s', staff_number='%s', profile_pix='%s'  where id ='%s' " % (
+                n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station,
+                n_role, n_staffn, n_pix, n_id)
 
-        else:
-            flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
-            # return redirect(request.url)
-    print('update is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('staff_info')
-
+            else:
+                flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
+                # return redirect(request.url)
+        print('update is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('staff_info')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/updateholiday', methods=['POST'])
 def updateholiday():
-    n_name = request.form['holiday_name']
-    n_date = request.form['holiday_date']
-    n_id = request.form['id']
-    query ="update holidays set nameofholiday='%s', date='%s' where id='%s'" % (n_name,n_date,n_id)
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    print('update is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('holidays')
-
+    try:
+        n_name = request.form['holiday_name']
+        n_date = request.form['holiday_date']
+        n_id = request.form['id']
+        query ="update holidays set nameofholiday='%s', date='%s' where id='%s'" % (n_name,n_date,n_id)
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        print('update is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Update Successful"
+        modal.logs(session['username'], msg)
+        flash('Update Successful')
+        return redirect('holidays')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/remove_holiday', methods=['POST'])
 def remove_holiday():
-    print('id is', request.form)
-    nid = request.form['id']
-    query = modal.remove_holiday(nid)
+    try:
+        print('id is', request.form)
+        nid = request.form['id']
+        query = modal.remove_holiday(nid)
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        print('deleted is ', query)
+        flash('Deletion Successful')
+        return redirect('holidays')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
-    print('deleted is ', query)
-
-    return redirect('holidays')
+@app.route('/remove_user', methods=['POST'])
+def remove_user():
+    try:
+        print('id is', request.form)
+        nid = request.form['id']
+        get_staff = modal.get_staff(nid)
+        query = modal.remove_user(nid)
+        remove_login = modal.remove_userlogin(get_staff['staff_number'])
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        print('deleted is ', query)
+        print('login deleted is', remove_login)
+        flash('Deletion Successful', 'success')
+        return redirect('/dashboard')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/remove_department', methods=['POST'])
 def remove_department():
-    print('id is', request.form)
-    nid = request.form['id']
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    query = "delete  from departments where id=%s" % nid
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-
-    print('deleted department is ', query)
-
-    return redirect('departments')
-
+    try:
+        print('id is', request.form)
+        nid = request.form['id']
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        query = "delete  from departments where id=%s" % nid
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        print('deleted department is ', query)
+        flash('Deletion Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/remove_role', methods=['POST'])
 def remove_role():
-    print('id is', request.form)
-    id = request.form['id']
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    query ="delete  from role where id=%s"% id
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    print('deleted role is ', query)
-
-    return redirect('departments')
-
+    try:
+        print('id is', request.form)
+        id = request.form['id']
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        query ="delete  from role where id=%s"% id
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        print('deleted role is ', query)
+        flash('Deletion Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/remove_office', methods=['POST'])
 def remove_office():
-    print('id is', request.form)
-    id = request.form['id']
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    query = "delete  from station where id=%s"% id
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-
-    print('deleted office is ', query)
-
-    return redirect('departments')
-
+    try:
+        print('id is', request.form)
+        id = request.form['id']
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        query = "delete  from station where id=%s"% id
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "Deletion Successful"
+        modal.logs(session['username'], msg)
+        print('deleted office is ', query)
+        flash('Deletion Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/departments')
 def dept():
@@ -776,140 +881,174 @@ def dept():
 
 @app.route('/new_holiday', methods=['POST'])
 def new_holiday():
-    name = request.form['holiday_name']
-    date = request.form ['holiday_date']
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    query = "insert into holidays set nameofholiday='%s', date='%s'"% (name,date)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('holidays')
-
+    try:
+        name = request.form['holiday_name']
+        date = request.form ['holiday_date']
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        query = "insert into holidays set nameofholiday='%s', date='%s'"% (name,date)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "New Holiday Successfully Added"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('holidays')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/newuser', methods=['POST'])
 def newuser():
-    print('updating user')
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    n_first = request.form['first_name']
-    n_middle = request.form['middle_name']
-    n_last = request.form['last_name']
-    n_gender = request.form['gender2']
-    n_email = request.form['email']
-    n_phone = request.form['phone']
-    n_department = request.form['department']
-    n_isadmin = request.form['isadmin2']
-    n_line_manager = request.form['line_manager2']
-    n_station = request.form['station']
-    n_position = request.form['position']
-    n_staffn = request.form['staff_number']
-    n_role = request.form['role2']
-    n_pix =''
+    try:
+        print('updating user')
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        n_first = request.form['first_name']
+        n_middle = request.form['middle_name']
+        n_last = request.form['last_name']
+        n_gender = request.form['gender2']
+        n_email = request.form['email']
+        n_phone = request.form['phone']
+        n_department = request.form['department']
+        n_isadmin = request.form['isadmin2']
+        n_line_manager = request.form['line_manager2']
+        n_station = request.form['station']
+        n_position = request.form['position']
+        n_staffn = request.form['staff_number']
+        n_role = request.form['role2']
+        n_pix =''
 
 
-    # staff_id = request.form['pass_reset']
-    pwd = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for i in range(8))
-    pw_hash = bcrypt.generate_password_hash(pwd)
-    modal.new_login(n_staffn, pw_hash, n_email)
-    # //todo send mail with ***pwd*** as the new password
-    # email = modal.get_personal_email(n_staffn)
-    # print('email is', email)
-    subject = 'Leave Portal Password'
-    message = "Your password to the leave portal is '%s'" % pwd
-    mail.send_mail([n_email], message, subject,None)
+        # staff_id = request.form['pass_reset']
+        pwd = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits) for i in range(8))
+        pw_hash = bcrypt.generate_password_hash(pwd)
+        modal.new_login(n_staffn, pw_hash, n_email)
+        # //todo send mail with ***pwd*** as the new password
+        # email = modal.get_personal_email(n_staffn)
+        # print('email is', email)
+        subject = 'Leave Portal Password'
+        message = "Your password to the leave portal is '%s'" % pwd
+        mail.send_mail([n_email], message, subject,None)
 
 
-    if 'file-input' in request.files and request.files['file-input'].filename != '':
-        file = request.files['file-input']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            flash('File successfully uploaded')
-            n_pix = filename
+        if 'file-input' in request.files and request.files['file-input'].filename != '':
+            file = request.files['file-input']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                flash('File successfully uploaded')
+                n_pix = filename
 
 
-        else:
-            flash('Profile picture with types are txt, pdf, png, jpg, jpeg, gif is needed')
-            # return redirect(request.url)
-    query = "insert into personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', role='%s',position='%s', staff_number='%s', profile_pix='%s'" % (
-        n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station,
-        n_role, n_position, n_staffn, n_pix)
-
-    print('inserted user is ', query)
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('staff_info')
+            else:
+                flash('Profile picture with types are txt, pdf, png, jpg, jpeg, gif is needed')
+                # return redirect(request.url)
+        query = "insert into personal_data set first_name='%s', middle_name='%s', last_name='%s', gender='%s',email='%s', phone_number='%s', department='%s', isadmin='%s', line_manager='%s', station='%s', role='%s',position='%s', staff_number='%s', profile_pix='%s'" % (
+            n_first, n_middle, n_last, n_gender, n_email, n_phone, n_department, n_isadmin, n_line_manager, n_station,
+            n_role, n_position, n_staffn, n_pix)
+        print('inserted user is ', query)
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "New User Successfully Added"
+        modal.logs(session['username'], msg)
+        return redirect('staff_info')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 
 @app.route('/new_leave_days', methods=['POST'])
 def new_leave_days():
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    leave = request.form['leave']
-    gender = request.form['carryg']
-    role = request.form['role']
-    duration = request.form['duration']
-    carryf = request.form['carryf']
-    carryd = request.form['carryd']
-    query1 = "insert into role_leave_days set leave_id='%s', role_id='%s', duration='%s', carry_forward='%s', days_carry_forward='%s'"% (leave,role, duration,carryf,carryd)
-    print('new leave is ', query1)
-    cursor.execute(query1)
-    cursor.close()
-    connection.close()
-    return redirect('admleave')
-
+    try:
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        leave = request.form['leave']
+        gender = request.form['carryg']
+        role = request.form['role']
+        duration = request.form['duration']
+        carryf = request.form['carryf']
+        carryd = request.form['carryd']
+        query1 = "insert into role_leave_days set leave_id='%s', role_id='%s', duration='%s', carry_forward='%s', days_carry_forward='%s'"% (leave,role, duration,carryf,carryd)
+        print('new leave is ', query1)
+        cursor.execute(query1)
+        cursor.close()
+        connection.close()
+        msg = "Leave/Days Successfully Added"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/new_leave', methods=['POST'])
 def new_leave():
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    leave = request.form['leave']
-    gender = request.form['carryg']
-    query1 = "insert into leave_types set name='%s', gender='%s'"% (leave,gender)
-    print('new leave is ', query1)
-    cursor.execute(query1)
-    cursor.close()
-    connection.close()
-    return redirect('admleave')
-
+    try:
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        leave = request.form['leave']
+        gender = request.form['carryg']
+        query1 = "insert into leave_types set name='%s', gender='%s'"% (leave,gender)
+        print('new leave is ', query1)
+        cursor.execute(query1)
+        cursor.close()
+        connection.close()
+        msg = "New Leave Successfully Added"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('admleave')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/new_department', methods=['POST'])
 def new_department():
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    name = request.form['name']
-    query = "insert into departments set name='%s'"% name
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        name = request.form['name']
+        query = "insert into departments set name='%s'"% name
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "New Department Successfully Added"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/new_role', methods=['POST'])
 def new_role():
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    name = request.form['name']
-    query = "insert into role set role_name='%s'"% name
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        name = request.form['name']
+        query = "insert into role set role_name='%s'"% name
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "New Role Added Successfully"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.route('/new_office', methods=['POST'])
 def new_office():
-    connection = app.config['pool'].get_connection()
-    cursor = connection.cursor(dictionary=True)
-    name = request.form['name']
-    query = "insert into station set name='%s'"% name
-    cursor.execute(query)
-    cursor.close()
-    connection.close()
-    return redirect('departments')
-
+    try:
+        connection = app.config['pool'].get_connection()
+        cursor = connection.cursor(dictionary=True)
+        name = request.form['name']
+        query = "insert into station set name='%s'"% name
+        cursor.execute(query)
+        cursor.close()
+        connection.close()
+        msg = "New Office Added Successfully"
+        modal.logs(session['username'], msg)
+        flash('Creation Successful')
+        return redirect('departments')
+    except Exception as e:
+        return render_template("500.html", error=str(e))
 
 @app.before_first_request
 def db_conn():
